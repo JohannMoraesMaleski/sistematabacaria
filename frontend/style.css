@@ -714,7 +714,7 @@ body {
     background-clip: text;
 }
 
-/* Buttons */
+/* Enhanced Buttons with Ultra-Smooth Interactions */
 .btn-primary {
     background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
     color: white;
@@ -724,13 +724,18 @@ body {
     cursor: pointer;
     font-size: 1rem;
     font-weight: 600;
-    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     box-shadow: 
         0 4px 15px rgba(52, 152, 219, 0.4),
         0 2px 8px rgba(0,0,0,0.1);
     position: relative;
     overflow: hidden;
     transform: translateZ(0);
+    will-change: transform, box-shadow;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .btn-primary::before {
@@ -740,8 +745,9 @@ body {
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-    transition: left 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    transition: left 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    z-index: 1;
 }
 
 .btn-primary::after {
@@ -751,10 +757,12 @@ body {
     left: 50%;
     width: 0;
     height: 0;
-    background: rgba(255,255,255,0.2);
+    background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
     border-radius: 50%;
-    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     transform: translate(-50%, -50%);
+    z-index: 2;
+    opacity: 0;
 }
 
 .btn-primary:hover::before {
@@ -764,20 +772,50 @@ body {
 .btn-primary:hover::after {
     width: 300px;
     height: 300px;
-    opacity: 0;
+    opacity: 1;
+    animation: ripple 0.6s ease-out;
+}
+
+@keyframes ripple {
+    0% {
+        width: 0;
+        height: 0;
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.8;
+    }
+    100% {
+        width: 300px;
+        height: 300px;
+        opacity: 0;
+    }
 }
 
 .btn-primary:hover {
     background: linear-gradient(135deg, #2980b9 0%, #3498db 100%);
-    transform: translateY(-2px) scale(1.02) translateZ(0);
+    transform: translateY(-3px) scale(1.05) translateZ(0);
     box-shadow: 
-        0 8px 25px rgba(52, 152, 219, 0.5),
-        0 4px 16px rgba(0,0,0,0.15);
+        0 12px 35px rgba(52, 152, 219, 0.6),
+        0 6px 20px rgba(0,0,0,0.2),
+        inset 0 1px 0 rgba(255,255,255,0.2);
+    border-color: rgba(255,255,255,0.3);
 }
 
 .btn-primary:active {
-    transform: translateY(0) scale(0.98) translateZ(0);
-    transition: all 0.1s ease;
+    transform: translateY(-1px) scale(1.02) translateZ(0);
+    transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 
+        0 6px 20px rgba(52, 152, 219, 0.4),
+        0 3px 10px rgba(0,0,0,0.15);
+}
+
+.btn-primary:focus {
+    outline: none;
+    box-shadow: 
+        0 8px 25px rgba(52, 152, 219, 0.5),
+        0 4px 16px rgba(0,0,0,0.15),
+        0 0 0 3px rgba(52, 152, 219, 0.3);
 }
 
 .btn-secondary {
@@ -793,14 +831,49 @@ body {
     box-shadow: 
         0 4px 15px rgba(149, 165, 166, 0.4),
         0 2px 8px rgba(0,0,0,0.1);
+    position: relative;
+    overflow: hidden;
+    transform: translateZ(0);
+    will-change: transform, box-shadow;
+    border: 2px solid transparent;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.btn-secondary::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    transition: left 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.btn-secondary:hover::before {
+    left: 100%;
 }
 
 .btn-secondary:hover {
     background: linear-gradient(135deg, #7f8c8d 0%, #95a5a6 100%);
-    transform: translateY(-3px) scale(1.05);
+    transform: translateY(-3px) scale(1.05) translateZ(0);
+    box-shadow: 
+        0 12px 35px rgba(149, 165, 166, 0.6),
+        0 6px 20px rgba(0,0,0,0.2);
+    border-color: rgba(255,255,255,0.3);
+}
+
+.btn-secondary:active {
+    transform: translateY(-1px) scale(1.02) translateZ(0);
+    transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-secondary:focus {
+    outline: none;
     box-shadow: 
         0 8px 25px rgba(149, 165, 166, 0.5),
-        0 4px 16px rgba(0,0,0,0.15);
+        0 4px 16px rgba(0,0,0,0.15),
+        0 0 0 3px rgba(149, 165, 166, 0.3);
 }
 
 .btn-edit {
@@ -808,19 +881,105 @@ body {
     color: white;
     border: none;
     padding: 0.7rem 1.2rem;
-    border-radius: 8px;
+    border-radius: 10px;
     cursor: pointer;
     font-size: 0.9rem;
-    font-weight: 500;
+    font-weight: 600;
     margin-right: 0.5rem;
-    transition: all 0.3s ease;
-    box-shadow: 0 3px 10px rgba(243, 156, 18, 0.3);
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    box-shadow: 
+        0 4px 15px rgba(243, 156, 18, 0.4),
+        0 2px 8px rgba(0,0,0,0.1);
+    position: relative;
+    overflow: hidden;
+    transform: translateZ(0);
+    will-change: transform, box-shadow;
+    border: 2px solid transparent;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.btn-edit::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    transition: left 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.btn-edit::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+    border-radius: 50%;
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transform: translate(-50%, -50%);
+    opacity: 0;
+}
+
+.btn-edit:hover::before {
+    left: 100%;
+}
+
+.btn-edit:hover::after {
+    width: 150px;
+    height: 150px;
+    opacity: 1;
+    animation: editRipple 0.5s ease-out;
+}
+
+@keyframes editRipple {
+    0% {
+        width: 0;
+        height: 0;
+        opacity: 1;
+    }
+    100% {
+        width: 150px;
+        height: 150px;
+        opacity: 0;
+    }
 }
 
 .btn-edit:hover {
-    background: linear-gradient(135deg, #e67e22 0%, #f39c12 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(243, 156, 18, 0.4);
+    background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
+    transform: translateY(-3px) scale(1.08) translateZ(0);
+    box-shadow: 
+        0 8px 25px rgba(243, 156, 18, 0.6),
+        0 4px 16px rgba(0,0,0,0.2),
+        inset 0 1px 0 rgba(255,255,255,0.2);
+    border-color: rgba(255,255,255,0.3);
+}
+
+.btn-edit:active {
+    transform: translateY(-1px) scale(1.05) translateZ(0);
+    transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 
+        0 4px 15px rgba(243, 156, 18, 0.4),
+        0 2px 8px rgba(0,0,0,0.1);
+}
+
+.btn-edit:focus {
+    outline: none;
+    box-shadow: 
+        0 6px 20px rgba(243, 156, 18, 0.5),
+        0 3px 10px rgba(0,0,0,0.15),
+        0 0 0 3px rgba(243, 156, 18, 0.3);
+}
+
+.btn-edit i {
+    margin-right: 0.5rem;
+    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.btn-edit:hover i {
+    transform: scale(1.1) rotate(5deg);
 }
 
 .btn-delete {
@@ -828,18 +987,101 @@ body {
     color: white;
     border: none;
     padding: 0.7rem 1.2rem;
-    border-radius: 8px;
+    border-radius: 10px;
     cursor: pointer;
     font-size: 0.9rem;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    box-shadow: 0 3px 10px rgba(231, 76, 60, 0.3);
+    font-weight: 600;
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    box-shadow: 
+        0 4px 15px rgba(231, 76, 60, 0.4),
+        0 2px 8px rgba(0,0,0,0.1);
+    position: relative;
+    overflow: hidden;
+    transform: translateZ(0);
+    will-change: transform, box-shadow;
+    border: 2px solid transparent;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.btn-delete::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    transition: left 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.btn-delete::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+    border-radius: 50%;
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transform: translate(-50%, -50%);
+    opacity: 0;
+}
+
+.btn-delete:hover::before {
+    left: 100%;
+}
+
+.btn-delete:hover::after {
+    width: 150px;
+    height: 150px;
+    opacity: 1;
+    animation: deleteRipple 0.5s ease-out;
+}
+
+@keyframes deleteRipple {
+    0% {
+        width: 0;
+        height: 0;
+        opacity: 1;
+    }
+    100% {
+        width: 150px;
+        height: 150px;
+        opacity: 0;
+    }
 }
 
 .btn-delete:hover {
-    background: linear-gradient(135deg, #c0392b 0%, #e74c3c 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
+    background: linear-gradient(135deg, #c0392b 0%, #a93226 100%);
+    transform: translateY(-3px) scale(1.08) translateZ(0);
+    box-shadow: 
+        0 8px 25px rgba(231, 76, 60, 0.6),
+        0 4px 16px rgba(0,0,0,0.2),
+        inset 0 1px 0 rgba(255,255,255,0.2);
+    border-color: rgba(255,255,255,0.3);
+}
+
+.btn-delete:active {
+    transform: translateY(-1px) scale(1.05) translateZ(0);
+    transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-delete:focus {
+    outline: none;
+    box-shadow: 
+        0 6px 20px rgba(231, 76, 60, 0.5),
+        0 3px 10px rgba(0,0,0,0.15),
+        0 0 0 3px rgba(231, 76, 60, 0.3);
+}
+
+.btn-delete i {
+    margin-right: 0.5rem;
+    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.btn-delete:hover i {
+    transform: scale(1.1) rotate(-5deg);
 }
 
 /* Modals */
@@ -1188,6 +1430,22 @@ form {
         font-size: 0.9rem;
     }
     
+    .btn-primary,
+    .btn-secondary {
+        width: 100%;
+        margin-bottom: 0.5rem;
+        padding: 1rem;
+        font-size: 0.9rem;
+    }
+    
+    .btn-edit,
+    .btn-delete {
+        padding: 0.7rem 0.8rem;
+        margin-right: 0.3rem;
+        margin-bottom: 0.3rem;
+        min-width: 80px;
+    }
+    
     .sidebar .logo {
         font-size: 1.5rem;
     }
@@ -1399,4 +1657,263 @@ textarea:focus {
 .nav-btn:focus {
     outline: 2px solid rgba(255,255,255,0.5);
     outline-offset: 2px;
+}
+
+/* Enhanced Button Responsiveness & UX */
+
+/* Universal button base styles for better accessibility and performance */
+button,
+.btn-primary,
+.btn-secondary,
+.btn-edit,
+.btn-delete,
+.nav-btn {
+    /* Hardware acceleration for smooth animations */
+    will-change: transform, box-shadow, background;
+    backface-visibility: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    
+    /* Touch optimizations */
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    
+    /* Improved cursor feedback */
+    cursor: pointer;
+    user-select: none;
+}
+
+/* Responsive button sizing */
+@media (max-width: 768px) {
+    .btn-primary,
+    .btn-secondary {
+        padding: 0.9rem 1.6rem;
+        font-size: 0.95rem;
+        min-height: 48px; /* Minimum touch target size */
+    }
+    
+    .btn-edit,
+    .btn-delete {
+        padding: 0.6rem 1rem;
+        font-size: 0.85rem;
+        min-height: 44px;
+    }
+}
+
+@media (max-width: 480px) {
+    .btn-primary,
+    .btn-secondary {
+        width: 100%;
+        margin-bottom: 0.5rem;
+        padding: 1rem;
+        font-size: 0.9rem;
+    }
+    
+    .btn-edit,
+    .btn-delete {
+        padding: 0.7rem 0.8rem;
+        margin-right: 0.3rem;
+        margin-bottom: 0.3rem;
+        min-width: 80px;
+    }
+}
+
+/* Enhanced loading states */
+.btn-loading {
+    position: relative;
+    color: transparent !important;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.btn-loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid transparent;
+    border-top: 2px solid currentColor;
+    border-radius: 50%;
+    animation: btnSpin 0.8s linear infinite;
+}
+
+@keyframes btnSpin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Micro-interaction improvements */
+.btn-primary,
+.btn-secondary,
+.btn-edit,
+.btn-delete {
+    position: relative;
+    overflow: hidden;
+}
+
+/* Enhanced ripple effect for all buttons */
+.btn-primary:active::after,
+.btn-secondary:active::after,
+.btn-edit:active::after,
+.btn-delete:active::after {
+    animation: none;
+    width: 200px;
+    height: 200px;
+    opacity: 0.3;
+    transition: all 0.2s ease-out;
+}
+
+/* Improved focus states for accessibility */
+.btn-primary:focus-visible,
+.btn-secondary:focus-visible,
+.btn-edit:focus-visible,
+.btn-delete:focus-visible {
+    outline: 3px solid transparent;
+    box-shadow: 
+        0 0 0 3px rgba(255, 255, 255, 0.9),
+        0 0 0 6px currentColor,
+        0 8px 25px rgba(0,0,0,0.3);
+}
+
+/* Disabled state improvements */
+.btn-primary:disabled,
+.btn-secondary:disabled,
+.btn-edit:disabled,
+.btn-delete:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+    pointer-events: none;
+}
+
+/* Table button container improvements */
+.btn-container {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+    .btn-container {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .btn-container .btn-edit,
+    .btn-container .btn-delete {
+        width: 100%;
+        margin-right: 0;
+        margin-bottom: 0.25rem;
+    }
+}
+
+/* Enhanced hover effects with performance optimization */
+@media (hover: hover) {
+    .btn-primary:hover,
+    .btn-secondary:hover,
+    .btn-edit:hover,
+    .btn-delete:hover {
+        animation: buttonPulse 0.6s ease-in-out;
+    }
+}
+
+@keyframes buttonPulse {
+    0% {
+        transform: translateY(-3px) scale(1.05);
+    }
+    50% {
+        transform: translateY(-4px) scale(1.08);
+    }
+    100% {
+        transform: translateY(-3px) scale(1.05);
+    }
+}
+
+/* Smooth state transitions */
+.btn-primary,
+.btn-secondary,
+.btn-edit,
+.btn-delete {
+    transition: 
+        transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+        box-shadow 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+        background 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+        border-color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+        opacity 0.3s ease;
+}
+
+/* Performance optimizations for mobile */
+@media (max-width: 768px) {
+    .btn-primary::before,
+    .btn-secondary::before,
+    .btn-edit::before,
+    .btn-delete::before,
+    .btn-primary::after,
+    .btn-secondary::after,
+    .btn-edit::after,
+    .btn-delete::after {
+        display: none; /* Disable complex animations on mobile for better performance */
+    }
+    
+    .btn-primary:hover,
+    .btn-secondary:hover,
+    .btn-edit:hover,
+    .btn-delete:hover {
+        transform: scale(1.05) translateZ(0);
+        animation: none;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .btn-primary,
+    .btn-secondary,
+    .btn-edit,
+    .btn-delete,
+    .nav-btn {
+        transition: none;
+        animation: none;
+    }
+    
+    .btn-primary::before,
+    .btn-secondary::before,
+    .btn-edit::before,
+    .btn-delete::before,
+    .btn-primary::after,
+    .btn-secondary::after,
+    .btn-edit::after,
+    .btn-delete::after {
+        display: none;
+    }
+}
+
+/* Enhanced button groups */
+.button-group {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.button-group .btn-primary,
+.button-group .btn-secondary {
+    flex: 1;
+    min-width: 120px;
+}
+
+@media (max-width: 480px) {
+    .button-group {
+        flex-direction: column;
+    }
+    
+    .button-group .btn-primary,
+    .button-group .btn-secondary {
+        width: 100%;
+    }
 }
