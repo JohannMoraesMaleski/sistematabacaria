@@ -9,32 +9,51 @@
 </head>
 <body>
     <div class="container">
-        <!-- Header -->
-        <header class="header">
-            <div class="header-content">
-                <h1 class="logo">IRONBOX</h1>
-                <p class="subtitle">Sistema de Tabacaria e Distribuidora</p>
-            </div>
-        </header>
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <!-- Toggle Button -->
+            <button class="sidebar-toggle" id="sidebarToggle">
+                <i class="fas fa-bars"></i>
+            </button>
 
-        <!-- Navigation -->
-        <nav class="navigation">
-            <button class="nav-btn active" data-tab="dashboard">
-                <i class="fas fa-chart-line"></i> Dashboard
-            </button>
-            <button class="nav-btn" data-tab="products">
-                <i class="fas fa-box"></i> Produtos
-            </button>
-            <button class="nav-btn" data-tab="categories">
-                <i class="fas fa-tags"></i> Categorias
-            </button>
-            <button class="nav-btn" data-tab="suppliers">
-                <i class="fas fa-truck"></i> Fornecedores
-            </button>
-            <button class="nav-btn" data-tab="sales">
-                <i class="fas fa-shopping-cart"></i> Vendas
-            </button>
-        </nav>
+            <!-- Header -->
+            <header class="sidebar-header">
+                <div class="header-content">
+                    <h1 class="logo">
+                        <span class="logo-full">IRONBOX</span>
+                        <span class="logo-short">IB</span>
+                    </h1>
+                    <p class="subtitle">Sistema de Tabacaria e Distribuidora</p>
+                </div>
+            </header>
+
+            <!-- Navigation -->
+            <nav class="sidebar-navigation">
+                <button class="nav-btn active" data-tab="dashboard" data-tooltip="Dashboard">
+                    <i class="fas fa-chart-line"></i>
+                    <span class="nav-text">Dashboard</span>
+                </button>
+                <button class="nav-btn" data-tab="products" data-tooltip="Produtos">
+                    <i class="fas fa-box"></i>
+                    <span class="nav-text">Produtos</span>
+                </button>
+                <button class="nav-btn" data-tab="categories" data-tooltip="Categorias">
+                    <i class="fas fa-tags"></i>
+                    <span class="nav-text">Categorias</span>
+                </button>
+                <button class="nav-btn" data-tab="suppliers" data-tooltip="Fornecedores">
+                    <i class="fas fa-truck"></i>
+                    <span class="nav-text">Fornecedores</span>
+                </button>
+                <button class="nav-btn" data-tab="sales" data-tooltip="Vendas">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="nav-text">Vendas</span>
+                </button>
+            </nav>
+        </aside>
+
+        <!-- Sidebar Overlay for Mobile -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
         <!-- Main Content -->
         <main class="main-content">

@@ -10,12 +10,87 @@ let sales = [];
 // DOM Elements
 const navButtons = document.querySelectorAll('.nav-btn');
 const tabContents = document.querySelectorAll('.tab-content');
+const sidebar = document.getElementById('sidebar');
+const sidebarToggle = document.getElementById('sidebarToggle');
 
 // Initialize app
 document.addEventListener('DOMContentLoaded', function() {
     initializeApp();
     setupEventListeners();
+    setupSidebar();
+    
+    // Initialize sidebar state on page load
+    const body = document.body;
+    if (sidebar.classList.contains('collapsed')) {
+        body.classList.add('sidebar-collapsed');
+    }
 });
+
+function setupSidebar() {
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    const body = document.body;
+    
+    // Sidebar toggle functionality
+    sidebarToggle.addEventListener('click', function() {
+        if (window.innerWidth <= 768) {
+            // Mobile: toggle open/close
+            sidebar.classList.toggle('open');
+            sidebarOverlay.style.display = sidebar.classList.contains('open') ? 'block' : 'none';
+        } else {
+            // Desktop: toggle collapsed/expanded
+            sidebar.classList.toggle('collapsed');
+            // Apply class to body to control main content
+            body.classList.toggle('sidebar-collapsed', sidebar.classList.contains('collapsed'));
+        }
+    });
+
+    // Close sidebar when clicking overlay
+    sidebarOverlay.addEventListener('click', function() {
+        sidebar.classList.remove('open');
+        sidebarOverlay.style.display = 'none';
+    });
+
+    // Close sidebar on mobile when clicking outside
+    document.addEventListener('click', function(event) {
+        if (window.innerWidth <= 768) {
+            if (!sidebar.contains(event.target) && 
+                !sidebarToggle.contains(event.target) && 
+                sidebar.classList.contains('open')) {
+                sidebar.classList.remove('open');
+                sidebarOverlay.style.display = 'none';
+            }
+        }
+    });
+
+    // Handle window resize
+    window.addEventListener('resize', function() {
+        if (window.innerWidth > 768) {
+            sidebar.classList.remove('open');
+            sidebarOverlay.style.display = 'none';
+        } else {
+            sidebar.classList.remove('collapsed');
+            body.classList.remove('sidebar-collapsed');
+        }
+    });
+
+    // Auto-collapse sidebar on mobile on page load
+    if (window.innerWidth <= 768) {
+        sidebar.classList.remove('collapsed');
+        sidebar.classList.remove('open');
+        body.classList.remove('sidebar-collapsed');
+        sidebarOverlay.style.display = 'none';
+    }
+
+    // Close sidebar when navigation item is clicked on mobile
+    navButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            if (window.innerWidth <= 768 && sidebar.classList.contains('open')) {
+                sidebar.classList.remove('open');
+                sidebarOverlay.style.display = 'none';
+            }
+        });
+    });
+}
 
 function initializeApp() {
     loadDashboard();
@@ -47,30 +122,45 @@ function setupEventListeners() {
 
 // Tab switching
 function switchTab(tabId) {
-    navButtons.forEach(btn => btn.classList.remove('active'));
-    tabContents.forEach(content => content.classList.remove('active'));
-    
-    document.querySelector(`[data-tab="${tabId}"]`).classList.add('active');
-    document.getElementById(tabId).classList.add('active');
-    
-    // Reload data when switching tabs
-    switch(tabId) {
-        case 'dashboard':
-            loadDashboard();
-            break;
-        case 'products':
-            loadProducts();
-            break;
-        case 'categories':
-            loadCategories();
-            break;
-        case 'suppliers':
-            loadSuppliers();
-            break;
-        case 'sales':
-            loadSales();
-            break;
+    // Remove active class from current tab with fade out effect
+    const currentActiveTab = document.querySelector('.tab-content.active');
+    if (currentActiveTab) {
+        currentActiveTab.style.opacity = '0';
+        currentActiveTab.style.transform = 'translateY(-10px)';
     }
+    
+    // Add smooth transition delay
+    setTimeout(() => {
+        navButtons.forEach(btn => btn.classList.remove('active'));
+        tabContents.forEach(content => content.classList.remove('active'));
+        
+        document.querySelector(`[data-tab="${tabId}"]`).classList.add('active');
+        const newActiveTab = document.getElementById(tabId);
+        newActiveTab.classList.add('active');
+        
+        // Reset styles for smooth fade in
+        newActiveTab.style.opacity = '1';
+        newActiveTab.style.transform = 'translateY(0)';
+        
+        // Reload data when switching tabs
+        switch(tabId) {
+            case 'dashboard':
+                loadDashboard();
+                break;
+            case 'products':
+                loadProducts();
+                break;
+            case 'categories':
+                loadCategories();
+                break;
+            case 'suppliers':
+                loadSuppliers();
+                break;
+            case 'sales':
+                loadSales();
+                break;
+        }
+    }, 150);
 }
 
 // API calls
