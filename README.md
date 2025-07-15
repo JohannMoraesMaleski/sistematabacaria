@@ -1,6 +1,16 @@
 # IRONBOX - Sistema de Tabacaria e Distribuidora
 
-Sistema completo de gestão para tabacarias e distribuidoras com design profissional moderno, dashboard interativo, controle de estoque, vendas e fornecedores.
+Sistema completo de gestão para tabacarias e distribuidoras com design profissional moderno, dashboard interativo, controle de estoque, vendas, mesas e relatórios.
+
+## Nova Versão 4.0 - Sistema de Comandas e Relatórios
+
+A versão 4.0 traz funcionalidades avançadas para controle de mesas e relatórios analíticos:
+
+- **Sistema de Comandas Completo** - Gestão de pedidos por mesa com adição/remoção de itens
+- **Dashboard Visual de Mesas** - Visualização em tempo real do status das mesas
+- **Relatórios Analíticos** - Dashboards com métricas de ocupação, faturamento e performance
+- **Interface Aprimorada** - Layout responsivo e intuitivo para todas as funcionalidades
+- **Performance Otimizada** - Correção de problemas de memória e otimizações
 
 ## Nova Versão - Design Profissional e UX Aprimorada
 
@@ -52,6 +62,75 @@ O sistema foi completamente redesenhado com um visual moderno e profissional, in
 - Histórico de vendas em tabelas organizadas
 - Cancelamento de vendas com restauração automática de estoque
 - Validações de estoque para prevenir overselling
+
+### Mesas e Comandas
+- **Dashboard Visual de Mesas** - Grid com status em tempo real (disponível, ocupada, manutenção)
+- **Sistema de Comandas** - Gestão completa de pedidos por mesa
+- **Abertura/Fechamento de Mesas** - Controle de ocupação com informações do cliente
+- **Adição de Itens** - Interface intuitiva para adicionar produtos aos pedidos
+- **Gerenciamento de Pedidos** - Editar quantidades, remover itens, calcular totais
+- **Informações Detalhadas** - Cliente, garçom, valor total, tempo de abertura
+
+### Relatórios Analíticos
+- **Relatório de Ocupação** - Análise de uso das mesas, tempo médio e faturamento
+- **Performance de Garçons** - Vendas, comissões, pedidos ativos por funcionário
+- **Relatório de Faturamento** - Análise por período com divisão por método de pagamento
+- **Itens Mais Vendidos** - Top produtos com quantidades e receita gerada
+- **Filtros Dinâmicos** - Por data, período (hoje, 7 dias, 30 dias, personalizado)
+- **Interface Responsiva** - Tabelas bem formatadas com totais e estatísticas
+
+## Funcionalidades da Versão 4.0
+
+### Sistema de Comandas
+- **Abertura de Mesas**: Interface para abrir mesas com informações do cliente
+- **Gestão de Pedidos**: Modal completo para gerenciar comandas
+- **Adição de Itens**: Seleção de produtos com cálculo automático de preços
+- **Controle de Quantidades**: Edição em tempo real das quantidades
+- **Remoção de Itens**: Sistema para remover produtos do pedido
+- **Cálculo de Totais**: Atualização automática do valor total do pedido
+- **Fechamento de Mesas**: Processo para finalizar pedidos e liberar mesas
+
+### Dashboard Visual de Mesas
+- **Grid Responsivo**: Layout em cards adaptável para diferentes telas
+- **Status Visual**: Cores diferentes para cada status (disponível, ocupada, manutenção)
+- **Informações Detalhadas**: Capacidade, cliente, valor e tempo de abertura
+- **Ações Contextuais**: Botões específicos para cada status da mesa
+- **Atualização em Tempo Real**: Interface sincronizada com o banco de dados
+
+### Relatórios Analíticos
+- **Relatório de Ocupação**: 
+  - Taxa de ocupação por mesa
+  - Tempo médio de permanência
+  - Faturamento por mesa
+  - Último uso de cada mesa
+- **Performance de Garçons**:
+  - Total de vendas por funcionário
+  - Quantidade de pedidos atendidos
+  - Comissões calculadas automaticamente
+  - Pedidos ativos por garçom
+- **Relatório de Faturamento**:
+  - Análise por período configurável
+  - Divisão por método de pagamento
+  - Ticket médio e total de pedidos
+  - Gráficos e métricas visuais
+- **Itens Mais Vendidos**:
+  - Ranking de produtos por quantidade
+  - Receita gerada por produto
+  - Frequência de pedidos
+  - Análise de preços médios
+
+### Melhorias Técnicas
+- **Otimização de Memória**: Aumento do limite para 2GB (--max-old-space-size=2048)
+- **Correção de Bugs**: Resolvidos problemas de nomenclatura de colunas no banco
+- **Validações Aprimoradas**: Controle rigoroso de dados e estoque
+- **API RESTful**: Endpoints organizados e documentados
+- **Interface Moderna**: Estilos CSS aprimorados para as novas funcionalidades
+
+### Dados de Teste Expandidos
+- **10 Mesas**: Pré-cadastradas com diferentes capacidades
+- **Garçons**: 4 funcionários com turnos e comissões configuradas
+- **Métodos de Pagamento**: Dinheiro, PIX, cartões de débito e crédito
+- **Produtos Diversificados**: Mais de 40 produtos em diferentes categorias
 
 ## Tecnologias Utilizadas
 
@@ -142,7 +221,12 @@ sistematabacaria2.0/
 │       ├── categories.js
 │       ├── suppliers.js
 │       ├── sales.js
-│       └── dashboard.js
+│       ├── dashboard.js
+│       ├── tables.js
+│       ├── order-items.js
+│       ├── reports.js
+│       ├── waiters.js
+│       └── payments.js
 ├── database/
 │   ├── init.js
 │   └── ironbox.db (criado automaticamente)
@@ -215,6 +299,37 @@ O sistema vem com dados fictícios pré-cadastrados para facilitar os testes:
 ### Dashboard
 - `GET /api/dashboard` - Dados do dashboard
 - `GET /api/dashboard/low-stock` - Produtos com estoque baixo
+
+### Mesas
+- `GET /api/tables` - Listar todas as mesas
+- `GET /api/tables/:id` - Buscar mesa específica
+- `POST /api/tables` - Criar nova mesa
+- `POST /api/tables/:id/open` - Abrir mesa
+- `POST /api/tables/:id/close` - Fechar mesa
+- `PUT /api/tables/:id` - Atualizar mesa
+- `DELETE /api/tables/:id` - Deletar mesa
+
+### Itens de Pedido (Comandas)
+- `GET /api/order-items/:orderId` - Listar itens de um pedido
+- `POST /api/order-items` - Adicionar item ao pedido
+- `PUT /api/order-items/:id` - Atualizar quantidade do item
+- `DELETE /api/order-items/:id` - Remover item do pedido
+
+### Relatórios
+- `GET /api/reports/occupancy` - Relatório de ocupação de mesas
+- `GET /api/reports/waiters` - Relatório de performance dos garçons
+- `GET /api/reports/revenue` - Relatório de faturamento
+- `GET /api/reports/popular-items` - Itens mais vendidos
+
+### Garçons
+- `GET /api/waiters` - Listar garçons
+- `POST /api/waiters` - Criar garçom
+- `PUT /api/waiters/:id` - Atualizar garçom
+- `DELETE /api/waiters/:id` - Deletar garçom
+
+### Pagamentos
+- `GET /api/payments/methods` - Listar métodos de pagamento
+- `POST /api/payments/process` - Processar pagamento
 
 ## Características Técnicas
 
@@ -323,6 +438,15 @@ O sistema vem com dados fictícios pré-cadastrados para facilitar os testes:
 - **Animações**: Ripple effects e micro-interações fluidas
 
 ## Histórico de Versões
+
+### Versão 4.0 - Sistema de Comandas e Relatórios
+- **Sistema de Comandas**: Gestão completa de pedidos por mesa
+- **Dashboard de Mesas**: Grid visual com status em tempo real
+- **Relatórios Analíticos**: 4 tipos de relatórios com filtros dinâmicos
+- **Correção de Performance**: Solução do problema "JS heap out of memory"
+- **API Expandida**: Novas rotas para mesas, pedidos e relatórios
+- **Interface Aprimorada**: Modais e formulários para gestão de comandas
+- **Validações Robustas**: Controle de estoque e validação de dados
 
 ### Versão 3.0 - UX e Responsividade Aprimorada
 - **Botões Ultra-Responsivos**: Transições de 400ms com feedback visual instantâneo
@@ -462,5 +586,21 @@ Contribuições são bem-vindas! Sinta-se à vontade para:
 
 ---
 
-**IRONBOX** - Sistema de Tabacaria e Distribuidora **v3.0**  
+**IRONBOX** - Sistema de Tabacaria e Distribuidora **v4.0**  
+*Sistema completo com comandas, relatórios e gestão de mesas*  
 *Desenvolvido com tecnologias modernas, design profissional e UX otimizada*
+
+### Principais Destaques da v4.0:
+✅ **Sistema de Comandas Funcional** - Gestão completa de pedidos por mesa  
+✅ **Dashboard de Mesas Visual** - Interface moderna com status em tempo real  
+✅ **4 Tipos de Relatórios** - Análises detalhadas de ocupação, vendas e performance  
+✅ **Performance Otimizada** - Correção do problema de memória e otimizações  
+✅ **Interface Aprimorada** - Novos modais, formulários e estilos CSS  
+✅ **API Expandida** - 20+ endpoints para todas as funcionalidades  
+
+### Como Testar as Novas Funcionalidades:
+1. **Acesse a aba "Mesas"** para ver o dashboard visual
+2. **Abra uma mesa** clicando em "Abrir" nas mesas disponíveis
+3. **Gerencie pedidos** usando o botão "Gerenciar" nas mesas ocupadas
+4. **Visualize relatórios** na aba "Relatórios" com diferentes filtros
+5. **Explore as métricas** em tempo real no dashboard principal

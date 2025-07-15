@@ -24,12 +24,22 @@ const categoryRoutes = require('./backend/routes/categories');
 const supplierRoutes = require('./backend/routes/suppliers');
 const salesRoutes = require('./backend/routes/sales');
 const dashboardRoutes = require('./backend/routes/dashboard');
+const tableRoutes = require('./backend/routes/tables');
+const waiterRoutes = require('./backend/routes/waiters');
+const orderItemRoutes = require('./backend/routes/order-items');
+const reportRoutes = require('./backend/routes/reports');
+const paymentRoutes = require('./backend/routes/payments');
 
 app.use('/api/products', productRoutes(db));
 app.use('/api/categories', categoryRoutes(db));
 app.use('/api/suppliers', supplierRoutes(db));
 app.use('/api/sales', salesRoutes(db));
 app.use('/api/dashboard', dashboardRoutes(db));
+app.use('/api/tables', tableRoutes(db));
+app.use('/api/waiters', waiterRoutes(db));
+app.use('/api/order-items', orderItemRoutes(db));
+app.use('/api/reports', reportRoutes(db));
+app.use('/api/payments', paymentRoutes(db));
 
 // Serve frontend
 app.get('/', (req, res) => {

@@ -49,6 +49,14 @@
                     <i class="fas fa-shopping-cart"></i>
                     <span class="nav-text">Vendas</span>
                 </button>
+                <button class="nav-btn" data-tab="tables" data-tooltip="Mesas">
+                    <i class="fas fa-chair"></i>
+                    <span class="nav-text">Mesas</span>
+                </button>
+                <button class="nav-btn" data-tab="reports" data-tooltip="Relatórios">
+                    <i class="fas fa-chart-bar"></i>
+                    <span class="nav-text">Relatórios</span>
+                </button>
             </nav>
         </aside>
 
@@ -239,6 +247,59 @@
                     </table>
                 </div>
             </div>
+
+            <!-- Tables Tab -->
+            <div class="tab-content" id="tables">
+                <div class="tab-header">
+                    <h2>Controle de Mesas</h2>
+                    <button class="btn-primary" onclick="openTableModal()">
+                        <i class="fas fa-plus"></i> Nova Mesa
+                    </button>
+                </div>
+                
+                <div class="tables-grid" id="tables-grid">
+                    <!-- Grid de mesas será carregado via JavaScript -->
+                </div>
+            </div>
+
+            <!-- Reports Tab -->
+            <div class="tab-content" id="reports">
+                <div class="tab-header">
+                    <h2>Relatórios</h2>
+                </div>
+                
+                <div class="reports-container">
+                    <div class="reports-tabs">
+                        <button class="report-tab-btn active" data-report="occupancy">Ocupação</button>
+                        <button class="report-tab-btn" data-report="waiters">Garçons</button>
+                        <button class="report-tab-btn" data-report="revenue">Faturamento</button>
+                        <button class="report-tab-btn" data-report="popular">Mais Vendidos</button>
+                    </div>
+                    
+                    <div class="report-filters">
+                        <div class="filter-group">
+                            <label for="reportDate">Data:</label>
+                            <input type="date" id="reportDate" onchange="loadCurrentReport()">
+                        </div>
+                        <div class="filter-group">
+                            <label for="reportPeriod">Período:</label>
+                            <select id="reportPeriod" onchange="loadCurrentReport()">
+                                <option value="today">Hoje</option>
+                                <option value="7days" selected>Últimos 7 dias</option>
+                                <option value="30days">Últimos 30 dias</option>
+                                <option value="custom">Personalizado</option>
+                            </select>
+                        </div>
+                        <button class="btn-primary" onclick="loadCurrentReport()">
+                            <i class="fas fa-refresh"></i> Atualizar
+                        </button>
+                    </div>
+                    
+                    <div class="report-content" id="report-content">
+                        <!-- Conteúdo dos relatórios será carregado aqui -->
+                    </div>
+                </div>
+            </div>
         </main>
     </div>
 
@@ -384,6 +445,236 @@
                 <div class="form-actions">
                     <button type="button" class="btn-secondary" onclick="closeModal('saleModal')">Cancelar</button>
                     <button type="submit" class="btn-primary">Realizar Venda</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Table Modal -->
+    <div class="modal" id="tableModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Nova Mesa</h3>
+                <button class="close-btn" onclick="closeModal('tableModal')">&times;</button>
+            </div>
+            <form id="tableForm">
+                <input type="hidden" id="tableId">
+                <div class="form-group">
+                    <label for="tableNumber">Número da Mesa *</label>
+                    <input type="text" id="tableNumber" required>
+                </div>
+                <div class="form-group">
+                    <label for="tableCapacity">Capacidade *</label>
+                    <input type="number" id="tableCapacity" required>
+                </div>
+                <div class="form-group">
+                    <label for="tableDescription">Descrição</label>
+                    <textarea id="tableDescription" rows="3"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" onclick="closeModal('tableModal')">Cancelar</button>
+                    <button type="submit" class="btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para Abrir Mesa -->
+    <div class="modal" id="openTableModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Abrir Mesa</h3>
+                <button class="close-btn" onclick="closeModal('openTableModal')">&times;</button>
+            </div>
+            <form id="openTableForm">
+                <input type="hidden" id="openTableId">
+                <div class="form-group">
+                    <label for="customerName">Nome do Cliente (Opcional)</label>
+                    <input type="text" id="customerName" placeholder="Digite o nome do cliente">
+                </div>
+                <div class="form-group">
+                    <label for="waiterSelect">Garçom</label>
+                    <select id="waiterSelect">
+                        <option value="">Selecione um garçom</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" onclick="closeModal('openTableModal')">Cancelar</button>
+                    <button type="submit" class="btn-primary">Abrir Mesa</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para Fechar Mesa -->
+    <div class="modal" id="closeTableModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Fechar Mesa</h3>
+                <button class="close-btn" onclick="closeModal('closeTableModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="closeTableId">
+                <p>Deseja realmente fechar esta mesa?</p>
+                <div class="table-info" id="closeTableInfo">
+                    <!-- Informações da mesa serão carregadas aqui -->
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn-secondary" onclick="closeModal('closeTableModal')">Cancelar</button>
+                <button type="button" class="btn-danger" onclick="confirmCloseTable()">Fechar Mesa</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report Modal -->
+    <div class="modal" id="reportModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Novo Relatório</h3>
+                <button class="close-btn" onclick="closeModal('reportModal')">&times;</button>
+            </div>
+            <form id="reportForm">
+                <input type="hidden" id="reportId">
+                <div class="form-group">
+                    <label for="reportDate">Data *</label>
+                    <input type="date" id="reportDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="reportDescription">Descrição</label>
+                    <textarea id="reportDescription" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="reportType">Tipo</label>
+                    <select id="reportType">
+                        <option value="">Selecione...</option>
+                        <option value="venda">Venda</option>
+                        <option value="estoque">Estoque</option>
+                        <option value="financeiro">Financeiro</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="reportValue">Valor</label>
+                    <input type="number" id="reportValue" step="0.01">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" onclick="closeModal('reportModal')">Cancelar</button>
+                    <button type="submit" class="btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para Gerenciar Pedido -->
+    <div class="modal large-modal" id="manageOrderModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Gerenciar Pedido - Mesa <span id="orderTableNumber"></span></h3>
+                <button class="close-btn" onclick="closeModal('manageOrderModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="currentOrderId">
+                
+                <!-- Informações do Pedido -->
+                <div class="order-info">
+                    <div class="info-row">
+                        <span><strong>Cliente:</strong> <span id="orderCustomerName"></span></span>
+                        <span><strong>Garçom:</strong> <span id="orderWaiterName"></span></span>
+                        <span><strong>Aberto em:</strong> <span id="orderOpenedAt"></span></span>
+                    </div>
+                </div>
+                
+                <!-- Adicionar Itens -->
+                <div class="add-item-section">
+                    <h4>Adicionar Item</h4>
+                    <div class="add-item-form">
+                        <select id="itemProduct">
+                            <option value="">Selecione um produto</option>
+                        </select>
+                        <input type="number" id="itemQuantity" placeholder="Qtd" min="1" value="1">
+                        <button class="btn-primary" onclick="addItemToOrder()">
+                            <i class="fas fa-plus"></i> Adicionar
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Lista de Itens -->
+                <div class="order-items">
+                    <h4>Itens do Pedido</h4>
+                    <table class="order-items-table">
+                        <thead>
+                            <tr>
+                                <th>Produto</th>
+                                <th>Qtd</th>
+                                <th>Preço Unit.</th>
+                                <th>Subtotal</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="orderItemsList">
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Total -->
+                <div class="order-total">
+                    <h3>Total: R$ <span id="orderTotal">0.00</span></h3>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn-secondary" onclick="closeModal('manageOrderModal')">Fechar</button>
+                <button type="button" class="btn-success" onclick="showPaymentModal()">Finalizar Pedido</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Pagamento -->
+    <div class="modal" id="paymentModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Processar Pagamento</h3>
+                <button class="close-btn" onclick="closeModal('paymentModal')">&times;</button>
+            </div>
+            <form id="paymentForm">
+                <input type="hidden" id="paymentOrderId">
+                
+                <div class="payment-summary">
+                    <h4>Resumo do Pedido</h4>
+                    <p><strong>Mesa:</strong> <span id="paymentTableNumber"></span></p>
+                    <p><strong>Total:</strong> R$ <span id="paymentTotal">0.00</span></p>
+                </div>
+                
+                <div class="form-group">
+                    <label for="paymentMethod">Método de Pagamento</label>
+                    <select id="paymentMethod" required>
+                        <option value="">Selecione o método</option>
+                    </select>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="discount">Desconto (R$)</label>
+                        <input type="number" id="discount" step="0.01" min="0" value="0" onchange="calculatePayment()">
+                    </div>
+                    <div class="form-group">
+                        <label for="finalAmount">Valor Final</label>
+                        <input type="number" id="finalAmount" step="0.01" readonly>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="amountPaid">Valor Pago</label>
+                    <input type="number" id="amountPaid" step="0.01" required onchange="calculatePayment()">
+                </div>
+                
+                <div class="payment-details" id="paymentDetails" style="display: none;">
+                    <p><strong>Troco:</strong> R$ <span id="changeAmount">0.00</span></p>
+                    <p><strong>Taxa:</strong> R$ <span id="feeAmount">0.00</span></p>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" onclick="closeModal('paymentModal')">Cancelar</button>
+                    <button type="submit" class="btn-success">Processar Pagamento</button>
                 </div>
             </form>
         </div>
