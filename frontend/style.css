@@ -1723,7 +1723,6 @@ form {
     background: #64748b;
     color: white;
     flex: 0 0 auto;
-    width: 40px;
 }
 
 .btn-delete:hover {
