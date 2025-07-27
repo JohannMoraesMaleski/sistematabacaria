@@ -30,7 +30,7 @@ const orderItemRoutes = (db) => {
 
     // POST /api/order-items - Adicionar item ao pedido
     router.post('/', (req, res) => {
-        const { order_id, product_id, quantity } = req.body;
+        const { order_id, product_id, quantity, command_number = 1 } = req.body;
         
         if (!order_id || !product_id || !quantity) {
             return res.status(400).json({ error: 'Pedido, produto e quantidade são obrigatórios' });
@@ -52,11 +52,11 @@ const orderItemRoutes = (db) => {
 
             // Inserir item
             const insertQuery = `
-                INSERT INTO table_order_items (order_id, product_id, quantity, unit_price, total_price) 
-                VALUES (?, ?, ?, ?, ?)
+                INSERT INTO table_order_items (order_id, product_id, quantity, unit_price, total_price, command_number) 
+                VALUES (?, ?, ?, ?, ?, ?)
             `;
             
-            db.run(insertQuery, [order_id, product_id, quantity, unit_price, total_price], function(err) {
+            db.run(insertQuery, [order_id, product_id, quantity, unit_price, total_price, command_number], function(err) {
                 if (err) {
                     console.error('Erro ao adicionar item:', err);
                     return res.status(500).json({ error: 'Erro interno do servidor' });
@@ -85,7 +85,8 @@ const orderItemRoutes = (db) => {
                     product_id,
                     quantity,
                     unit_price,
-                    total_price
+                    total_price,
+                    command_number
                 });
             });
         });
@@ -142,6 +143,39 @@ const orderItemRoutes = (db) => {
         });
     });
 
+    // PUT /api/order-items/:id/command - Atualizar comanda do item
+    router.put('/:id/command', (req, res) => {
+        const { id } = req.params;
+        const { command_number } = req.body;
+        
+        if (!command_number || command_number < 1 || command_number > 6) {
+            return res.status(400).json({ error: 'Número da comanda deve estar entre 1 e 6' });
+        }
+
+        // Verificar se o item existe
+        db.get('SELECT * FROM table_order_items WHERE id = ?', [id], (err, item) => {
+            if (err) {
+                console.error('Erro ao buscar item:', err);
+                return res.status(500).json({ error: 'Erro interno do servidor' });
+            }
+            
+            if (!item) {
+                return res.status(404).json({ error: 'Item não encontrado' });
+            }
+
+            // Atualizar a comanda do item
+            db.run('UPDATE table_order_items SET command_number = ? WHERE id = ?', 
+                [command_number, id], function(updateErr) {
+                if (updateErr) {
+                    console.error('Erro ao atualizar comanda do item:', updateErr);
+                    return res.status(500).json({ error: 'Erro interno do servidor' });
+                }
+
+                res.json({ message: 'Comanda do item atualizada com sucesso' });
+            });
+        });
+    });
+
     // DELETE /api/order-items/:id - Remover item do pedido
     router.delete('/:id', (req, res) => {
         const { id } = req.params;
@@ -181,6 +215,43 @@ const orderItemRoutes = (db) => {
                 });
 
                 res.json({ message: 'Item removido com sucesso' });
+            });
+        });
+    });
+
+    // PUT /api/order-items/:id/command - Atualizar comanda do item
+    router.put('/:id/command', (req, res) => {
+        const { id } = req.params;
+        const { command_number } = req.body;
+        
+        if (!command_number || command_number < 1) {
+            return res.status(400).json({ error: 'Número da comanda deve ser maior que zero' });
+        }
+
+        // Buscar item atual
+        db.get('SELECT * FROM table_order_items WHERE id = ?', [id], (err, item) => {
+            if (err) {
+                console.error('Erro ao buscar item:', err);
+                return res.status(500).json({ error: 'Erro interno do servidor' });
+            }
+            
+            if (!item) {
+                return res.status(404).json({ error: 'Item não encontrado' });
+            }
+
+            // Atualizar número da comanda
+            db.run('UPDATE table_order_items SET command_number = ? WHERE id = ?', 
+                [command_number, id], function(updateErr) {
+                if (updateErr) {
+                    console.error('Erro ao atualizar comanda do item:', updateErr);
+                    return res.status(500).json({ error: 'Erro interno do servidor' });
+                }
+
+                res.json({ 
+                    message: 'Comanda do item atualizada com sucesso',
+                    item_id: id,
+                    new_command: command_number
+                });
             });
         });
     });

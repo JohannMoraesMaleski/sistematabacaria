@@ -225,9 +225,14 @@
             <div class="tab-content" id="sales">
                 <div class="tab-header">
                     <h2>Vendas</h2>
-                    <button class="btn-primary" onclick="showSaleModal()">
-                        <i class="fas fa-plus"></i> Nova Venda
-                    </button>
+                    <div class="header-actions">
+                        <button class="btn-secondary" id="cart-btn" onclick="showCartModal()">
+                            <i class="fas fa-shopping-cart"></i> Carrinho (<span id="cart-count">0</span>)
+                        </button>
+                        <button class="btn-primary" onclick="showSaleModal()">
+                            <i class="fas fa-plus"></i> Nova Venda
+                        </button>
+                    </div>
                 </div>
                 
                 <div class="table-container">
@@ -272,8 +277,10 @@
                     <div class="reports-tabs">
                         <button class="report-tab-btn active" data-report="occupancy">Ocupação</button>
                         <button class="report-tab-btn" data-report="waiters">Garçons</button>
-                        <button class="report-tab-btn" data-report="revenue">Faturamento</button>
+                        <button class="report-tab-btn" data-report="revenue">Faturamento Mesas</button>
+                        <button class="report-tab-btn" data-report="sales">Vendas Avulsas</button>
                         <button class="report-tab-btn" data-report="popular">Mais Vendidos</button>
+                        <button class="report-tab-btn" data-report="comparison">Comparativo</button>
                     </div>
                     
                     <div class="report-filters">
@@ -444,6 +451,9 @@
                 </div>
                 <div class="form-actions">
                     <button type="button" class="btn-secondary" onclick="closeModal('saleModal')">Cancelar</button>
+                    <button type="button" class="btn-warning" onclick="addToCartFromModal()">
+                        <i class="fas fa-cart-plus"></i> Adicionar ao Carrinho
+                    </button>
                     <button type="submit" class="btn-primary">Realizar Venda</button>
                 </div>
             </form>
@@ -489,14 +499,29 @@
             <form id="openTableForm">
                 <input type="hidden" id="openTableId">
                 <div class="form-group">
-                    <label for="customerName">Nome do Cliente (Opcional)</label>
-                    <input type="text" id="customerName" placeholder="Digite o nome do cliente">
+                    <label for="customerName">Nome do Cliente Principal</label>
+                    <input type="text" id="customerName" placeholder="Digite o nome do cliente principal" required>
                 </div>
                 <div class="form-group">
-                    <label for="waiterSelect">Garçom</label>
-                    <select id="waiterSelect">
-                        <option value="">Selecione um garçom</option>
+                    <label for="commandCount">Número de Comandas</label>
+                    <select id="commandCount" onchange="updateCommandFields()" required>
+                        <option value="">Selecione o número de comandas</option>
+                        <option value="1">1 Comanda</option>
+                        <option value="2">2 Comandas</option>
+                        <option value="3">3 Comandas</option>
+                        <option value="4">4 Comandas</option>
+                        <option value="5">5 Comandas</option>
+                        <option value="6">6 Comandas</option>
                     </select>
+                </div>
+                <div id="additionalCommands" style="display: none;">
+                    <div class="commands-header">
+                        <h4>Nomes das Comandas Adicionais</h4>
+                        <p class="help-text">A primeira comanda será do cliente principal</p>
+                    </div>
+                    <div id="commandFields">
+                        <!-- Campos adicionais de comandas serão inseridos aqui -->
+                    </div>
                 </div>
                 <div class="form-actions">
                     <button type="button" class="btn-secondary" onclick="closeModal('openTableModal')">Cancelar</button>
@@ -578,9 +603,14 @@
                 <!-- Informações do Pedido -->
                 <div class="order-info">
                     <div class="info-row">
-                        <span><strong>Cliente:</strong> <span id="orderCustomerName"></span></span>
-                        <span><strong>Garçom:</strong> <span id="orderWaiterName"></span></span>
+                        <span><strong>Cliente Principal:</strong> <span id="orderCustomerName"></span></span>
                         <span><strong>Aberto em:</strong> <span id="orderOpenedAt"></span></span>
+                    </div>
+                    <div id="commandsInfo" class="commands-info" style="display: none;">
+                        <h4>Comandas da Mesa</h4>
+                        <div id="commandsList" class="commands-list">
+                            <!-- Lista de comandas será inserida aqui -->
+                        </div>
                     </div>
                 </div>
                 
@@ -592,6 +622,9 @@
                             <option value="">Selecione um produto</option>
                         </select>
                         <input type="number" id="itemQuantity" placeholder="Qtd" min="1" value="1">
+                        <select id="itemCommand" style="display: none;">
+                            <option value="">Selecione a comanda</option>
+                        </select>
                         <button class="btn-primary" onclick="addItemToOrder()">
                             <i class="fas fa-plus"></i> Adicionar
                         </button>
@@ -604,6 +637,7 @@
                     <table class="order-items-table">
                         <thead>
                             <tr>
+                                <th>Comanda</th>
                                 <th>Produto</th>
                                 <th>Qtd</th>
                                 <th>Preço Unit.</th>
@@ -677,6 +711,112 @@
                     <button type="submit" class="btn-success">Processar Pagamento</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Modal para Editar Comanda do Item -->
+    <div class="modal" id="editItemCommandModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Editar Comanda do Item</h3>
+                <button class="close-btn" onclick="closeModal('editItemCommandModal')">&times;</button>
+            </div>
+            <form id="editItemCommandForm">
+                <input type="hidden" id="editItemId">
+                <div class="form-group">
+                    <label for="editItemName">Item:</label>
+                    <input type="text" id="editItemName" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="editItemCommandSelect">Nova Comanda:</label>
+                    <select id="editItemCommandSelect" required>
+                        <option value="">Selecione a comanda</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" onclick="closeModal('editItemCommandModal')">Cancelar</button>
+                    <button type="submit" class="btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Cart Modal -->
+    <div class="modal" id="cartModal">
+        <div class="modal-content cart-modal">
+            <div class="modal-header">
+                <h3>Carrinho de Compras</h3>
+                <button class="close-btn" onclick="closeModal('cartModal')">&times;</button>
+            </div>
+            
+            <div class="cart-content">
+                <div class="cart-items" id="cartList">
+                    <!-- Items do carrinho serão inseridos aqui -->
+                </div>
+                
+                <div class="cart-totals">
+                    <div class="total-line">
+                        <span>Subtotal:</span>
+                        <span id="cartSubtotal">R$ 0,00</span>
+                    </div>
+                    <div class="total-line">
+                        <span>Taxa (%)</span>
+                        <input type="number" id="interestRate" value="0" min="0" max="100" step="0.1">
+                    </div>
+                    <div class="total-line">
+                        <span>Taxa (R$):</span>
+                        <span id="cartTax">R$ 0,00</span>
+                    </div>
+                    <div class="total-line total-final">
+                        <span><strong>Total:</strong></span>
+                        <span id="cartTotal"><strong>R$ 0,00</strong></span>
+                    </div>
+                </div>
+                
+                <div class="payment-section">
+                    <h4>Forma de Pagamento</h4>
+                    <div class="payment-methods">
+                        <label class="payment-option">
+                            <input type="radio" name="paymentMethod" value="dinheiro">
+                            <span>Dinheiro</span>
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="paymentMethod" value="pix">
+                            <span>PIX</span>
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="paymentMethod" value="debit">
+                            <span>Cartão de Débito</span>
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="paymentMethod" value="credit">
+                            <span>Cartão de Crédito</span>
+                        </label>
+                    </div>
+                    
+                    <div id="cardDetails" style="display: none;">
+                        <div class="form-group">
+                            <label for="cardBrand">Bandeira do Cartão</label>
+                            <select id="cardBrand">
+                                <option value="">Selecione...</option>
+                                <option value="visa">Visa</option>
+                                <option value="mastercard">Mastercard</option>
+                                <option value="elo">Elo</option>
+                                <option value="amex">American Express</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="cart-actions">
+                    <button type="button" class="btn-danger" onclick="clearCart()">
+                        <i class="fas fa-trash"></i> Limpar Carrinho
+                    </button>
+                    <button type="button" class="btn-success" id="finalizeSaleBtn" onclick="finalizeSale()" disabled>
+                        <i class="fas fa-check"></i> Finalizar Venda
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 

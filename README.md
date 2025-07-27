@@ -2,6 +2,17 @@
 
 Sistema completo de gestão para tabacarias e distribuidoras com design profissional moderno, dashboard interativo, controle de estoque, vendas, mesas e relatórios.
 
+## Nova Versão 5.0 - Sistema de Comandas Múltiplas
+
+A versão 5.0 introduz o sistema avançado de comandas múltiplas por mesa:
+
+- **Comandas Múltiplas** - Até 6 comandas independentes por mesa com nomes dos clientes
+- **Gestão por Cliente** - Cada cliente pode ter seus próprios itens organizados separadamente
+- **Interface Intuitiva** - Seleção de comanda ao adicionar produtos com validação automática
+- **Transferência de Itens** - Capacidade de mover itens entre comandas diferentes
+- **Visualização Clara** - Coluna específica mostrando a comanda de cada item no pedido
+- **Validações Inteligentes** - Sistema previne erros e garante consistência dos dados
+
 ## Nova Versão 4.0 - Sistema de Comandas e Relatórios
 
 A versão 4.0 traz funcionalidades avançadas para controle de mesas e relatórios analíticos:
@@ -79,9 +90,47 @@ O sistema foi completamente redesenhado com um visual moderno e profissional, in
 - **Filtros Dinâmicos** - Por data, período (hoje, 7 dias, 30 dias, personalizado)
 - **Interface Responsiva** - Tabelas bem formatadas com totais e estatísticas
 
+## Funcionalidades da Versão 5.0
+
+### Sistema de Comandas Múltiplas
+- **Configuração Flexível**: Escolha entre 1 a 6 comandas por mesa conforme necessidade
+- **Interface Dinâmica**: Formulário que se adapta automaticamente ao número de comandas
+- **Identificação de Clientes**: Campo obrigatório para nome de cada cliente
+- **Gestão Individual**: Cada comanda funciona de forma independente
+- **Visualização Organizada**: Lista de comandas ativas com nomes dos clientes
+- **Atribuição de Produtos**: Seleção obrigatória de comanda ao adicionar itens
+- **Correção de Erros**: Sistema para transferir itens entre comandas
+- **Validação Inteligente**: Impede adicionar produtos sem especificar a comanda
+
+### Melhorias na Interface
+- **Select de Comandas**: Campo sempre visível ao adicionar produtos
+- **Coluna de Identificação**: Mostra claramente qual cliente pediu cada item
+- **Botão de Transferência**: Ícone intuitivo para mover itens entre comandas
+- **Modal de Edição**: Interface dedicada para alterar comanda de itens
+- **Feedback Visual**: Cores e estilos diferenciados para comandas
+- **Layout Responsivo**: Grid que se adapta ao número de comandas ativas
+
+### Validações e Segurança
+- **Obrigatoriedade de Nomes**: Não permite abrir mesa sem nomes dos clientes
+- **Validação de Comanda**: Obriga seleção de comanda quando há múltiplas opções
+- **Prevenção de Erros**: Sistema impede operações inconsistentes
+- **Integridade de Dados**: Validações no frontend e backend
+- **Logs Detalhados**: Sistema de auditoria para rastreamento de alterações
+
 ## Funcionalidades da Versão 4.0
 
-### Sistema de Comandas
+### Sistema de Comandas Múltiplas (v5.0)
+- **Abertura Avançada de Mesas**: Interface para configurar de 1 a 6 comandas por mesa
+- **Campos Dinâmicos**: Formulário que se adapta ao número de comandas selecionado
+- **Nomes de Clientes**: Cada comanda possui um nome específico do cliente
+- **Gestão Inteligente de Pedidos**: Modal atualizado para suportar múltiplas comandas
+- **Seleção de Comanda**: Campo obrigatório ao adicionar produtos quando há múltiplas comandas
+- **Visualização por Comanda**: Coluna específica mostrando qual cliente pediu cada item
+- **Transferência de Itens**: Botão para mover produtos entre comandas diferentes
+- **Validações Robustas**: Sistema impede erros de atribuição e garante consistência
+- **Interface Adaptativa**: Layout que se ajusta automaticamente ao número de comandas
+
+### Sistema de Comandas (v4.0)
 - **Abertura de Mesas**: Interface para abrir mesas com informações do cliente
 - **Gestão de Pedidos**: Modal completo para gerenciar comandas
 - **Adição de Itens**: Seleção de produtos com cálculo automático de preços
@@ -311,8 +360,9 @@ O sistema vem com dados fictícios pré-cadastrados para facilitar os testes:
 
 ### Itens de Pedido (Comandas)
 - `GET /api/order-items/:orderId` - Listar itens de um pedido
-- `POST /api/order-items` - Adicionar item ao pedido
+- `POST /api/order-items` - Adicionar item ao pedido (com suporte a command_number)
 - `PUT /api/order-items/:id` - Atualizar quantidade do item
+- `PUT /api/order-items/:id/command` - Alterar comanda de um item específico
 - `DELETE /api/order-items/:id` - Remover item do pedido
 
 ### Relatórios
@@ -438,6 +488,15 @@ O sistema vem com dados fictícios pré-cadastrados para facilitar os testes:
 - **Animações**: Ripple effects e micro-interações fluidas
 
 ## Histórico de Versões
+
+### Versão 5.0 - Sistema de Comandas Múltiplas
+- **Comandas Múltiplas**: Suporte para até 6 comandas independentes por mesa
+- **Interface Dinâmica**: Formulários que se adaptam ao número de comandas
+- **Identificação de Clientes**: Nome obrigatório para cada comanda
+- **Gestão de Itens por Comanda**: Atribuição e transferência de produtos entre comandas
+- **Validações Avançadas**: Sistema robusto de prevenção de erros
+- **API Expandida**: Nova rota PUT para alteração de comandas
+- **Interface Aprimorada**: Coluna de identificação e botões de transferência
 
 ### Versão 4.0 - Sistema de Comandas e Relatórios
 - **Sistema de Comandas**: Gestão completa de pedidos por mesa
@@ -586,9 +645,17 @@ Contribuições são bem-vindas! Sinta-se à vontade para:
 
 ---
 
-**IRONBOX** - Sistema de Tabacaria e Distribuidora **v4.0**  
-*Sistema completo com comandas, relatórios e gestão de mesas*  
+**IRONBOX** - Sistema de Tabacaria e Distribuidora **v5.0**  
+*Sistema completo com comandas múltiplas, relatórios e gestão avançada de mesas*  
 *Desenvolvido com tecnologias modernas, design profissional e UX otimizada*
+
+### Principais Destaques da v5.0:
+- **Comandas Múltiplas Funcionais** - Até 6 comandas independentes por mesa
+- **Interface Dinâmica** - Formulários que se adaptam ao número de comandas
+- **Gestão por Cliente** - Cada cliente tem seus próprios itens organizados
+- **Transferência de Itens** - Capacidade de mover produtos entre comandas
+- **Validações Robustas** - Sistema previne erros e garante consistência
+- **API Expandida** - Nova rota para alteração de comandas de itens
 
 ### Principais Destaques da v4.0:
 ✅ **Sistema de Comandas Funcional** - Gestão completa de pedidos por mesa  
@@ -599,6 +666,16 @@ Contribuições são bem-vindas! Sinta-se à vontade para:
 ✅ **API Expandida** - 20+ endpoints para todas as funcionalidades  
 
 ### Como Testar as Novas Funcionalidades:
+
+#### Comandas Múltiplas (v5.0):
+1. **Abra uma mesa** e selecione "2 ou mais comandas" no dropdown
+2. **Digite os nomes** dos clientes para cada comanda
+3. **Confirme a abertura** e vá para "Gerenciar" a mesa
+4. **Adicione produtos** selecionando a comanda de cada cliente
+5. **Visualize a organização** na coluna "Comanda" da lista de itens
+6. **Teste a transferência** usando o botão de transferir itens entre comandas
+
+#### Funcionalidades Anteriores:
 1. **Acesse a aba "Mesas"** para ver o dashboard visual
 2. **Abra uma mesa** clicando em "Abrir" nas mesas disponíveis
 3. **Gerencie pedidos** usando o botão "Gerenciar" nas mesas ocupadas

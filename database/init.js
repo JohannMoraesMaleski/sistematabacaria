@@ -171,6 +171,32 @@ const initDB = (db) => {
             }
         });
 
+        // Adicionar colunas para suporte a comandas múltiplas
+        db.run(`
+            ALTER TABLE table_orders ADD COLUMN command_count INTEGER DEFAULT 1
+        `, (err) => {
+            if (err && !err.message.includes('duplicate column name')) {
+                console.error('Erro ao adicionar coluna command_count:', err);
+            }
+        });
+
+        db.run(`
+            ALTER TABLE table_orders ADD COLUMN command_names TEXT
+        `, (err) => {
+            if (err && !err.message.includes('duplicate column name')) {
+                console.error('Erro ao adicionar coluna command_names:', err);
+            }
+        });
+
+        // Adicionar coluna para identificar a qual comanda pertence cada item
+        db.run(`
+            ALTER TABLE table_order_items ADD COLUMN command_number INTEGER DEFAULT 1
+        `, (err) => {
+            if (err && !err.message.includes('duplicate column name')) {
+                console.error('Erro ao adicionar coluna command_number:', err);
+            }
+        });
+
         // Inserir métodos de pagamento padrão
         db.run(`
             INSERT OR IGNORE INTO payment_methods (name, type, fee_percentage) VALUES 
@@ -186,107 +212,46 @@ const initDB = (db) => {
             }
         });
 
-        // Inserir garçons padrão
-        db.run(`
-            INSERT OR IGNORE INTO waiters (name, shift, commission_rate) VALUES 
-            ('João Silva', 'manhã', 5.00),
-            ('Maria Santos', 'tarde', 5.00),
-            ('Pedro Costa', 'noite', 6.00),
-            ('Ana Oliveira', 'integral', 4.50)
-        `, (err) => {
-            if (err) {
-                console.error('Erro ao inserir garçons:', err);
-            } else {
-                console.log('✅ Garçons padrão inseridos com sucesso');
-            }
-        });
-
-        // Inserir dados fictícios
-        insertSampleData(db);
+        // Inserir dados essenciais do sistema (sem dados fictícios)
+        insertEssentialData(db);
     });
 };
 
-const insertSampleData = (db) => {
-    // Inserir categorias
-    const categories = [
-        { name: 'Cigarros', description: 'Cigarros nacionais e importados' },
-        { name: 'Charutos', description: 'Charutos premium e tradicionais' },
-        { name: 'Bebidas', description: 'Bebidas alcoólicas e não alcoólicas' },
-        { name: 'Acessórios', description: 'Isqueiros, cinzeiros e outros acessórios' },
-        { name: 'Tabaco', description: 'Tabaco para cachimbo e enrolar' }
-    ];
-
-    categories.forEach(category => {
-        db.run(`INSERT OR IGNORE INTO categories (name, description) VALUES (?, ?)`, 
-            [category.name, category.description]);
-    });
-
-    // Inserir fornecedores
-    const suppliers = [
-        { name: 'Philip Morris Brasil', contact_person: 'João Silva', email: 'joao@philipmorris.com', phone: '(11) 3456-7890', address: 'São Paulo, SP' },
-        { name: 'British American Tobacco', contact_person: 'Maria Santos', email: 'maria@bat.com', phone: '(21) 2345-6789', address: 'Rio de Janeiro, RJ' },
-        { name: 'Ambev Distribuidora', contact_person: 'Carlos Oliveira', email: 'carlos@ambev.com', phone: '(11) 4567-8901', address: 'São Paulo, SP' },
-        { name: 'Davidoff do Brasil', contact_person: 'Ana Costa', email: 'ana@davidoff.com', phone: '(11) 5678-9012', address: 'São Paulo, SP' },
-        { name: 'Zippo Brasil', contact_person: 'Pedro Lima', email: 'pedro@zippo.com', phone: '(11) 6789-0123', address: 'São Paulo, SP' }
-    ];
-
-    suppliers.forEach(supplier => {
-        db.run(`INSERT OR IGNORE INTO suppliers (name, contact_person, email, phone, address) VALUES (?, ?, ?, ?, ?)`, 
-            [supplier.name, supplier.contact_person, supplier.email, supplier.phone, supplier.address]);
-    });
-
-    // Aguardar inserção de categorias e fornecedores antes de inserir produtos
-    setTimeout(() => {
-        // Inserir produtos
-        const products = [
-            { name: 'Marlboro Gold', description: 'Cigarro Marlboro Gold maço', price: 12.50, stock_quantity: 100, category_id: 1, supplier_id: 1 },
-            { name: 'Lucky Strike', description: 'Cigarro Lucky Strike maço', price: 11.80, stock_quantity: 80, category_id: 1, supplier_id: 2 },
-            { name: 'Montecristo No.4', description: 'Charuto Montecristo premium', price: 45.00, stock_quantity: 25, category_id: 2, supplier_id: 4 },
-            { name: 'Cohiba Robusto', description: 'Charuto Cohiba premium', price: 65.00, stock_quantity: 15, category_id: 2, supplier_id: 4 },
-            { name: 'Whisky Johnnie Walker', description: 'Whisky Johnnie Walker Red Label', price: 85.00, stock_quantity: 30, category_id: 3, supplier_id: 3 },
-            { name: 'Cerveja Heineken', description: 'Cerveja Heineken long neck', price: 8.50, stock_quantity: 200, category_id: 3, supplier_id: 3 },
-            { name: 'Isqueiro Zippo', description: 'Isqueiro Zippo clássico', price: 125.00, stock_quantity: 40, category_id: 4, supplier_id: 5 },
-            { name: 'Cinzeiro Cristal', description: 'Cinzeiro de cristal premium', price: 35.00, stock_quantity: 20, category_id: 4, supplier_id: 5 },
-            { name: 'Tabaco Amsterdamer', description: 'Tabaco para cachimbo Amsterdamer', price: 22.00, stock_quantity: 60, category_id: 5, supplier_id: 2 },
-            { name: 'Papel Smoking', description: 'Papel para enrolar cigarro', price: 4.50, stock_quantity: 150, category_id: 5, supplier_id: 1 }
-        ];
-
-        products.forEach(product => {
-            db.run(`INSERT OR IGNORE INTO products (name, description, price, stock_quantity, category_id, supplier_id) VALUES (?, ?, ?, ?, ?, ?)`, 
-                [product.name, product.description, product.price, product.stock_quantity, product.category_id, product.supplier_id]);
-        });
-
-        // Inserir algumas vendas de exemplo
-        setTimeout(() => {
-            const sales = [
-                { product_id: 1, quantity: 5, unit_price: 12.50, total_price: 62.50 },
-                { product_id: 2, quantity: 3, unit_price: 11.80, total_price: 35.40 },
-                { product_id: 6, quantity: 12, unit_price: 8.50, total_price: 102.00 },
-                { product_id: 7, quantity: 1, unit_price: 125.00, total_price: 125.00 },
-                { product_id: 10, quantity: 8, unit_price: 4.50, total_price: 36.00 }
-            ];
-
-            sales.forEach(sale => {
-                db.run(`INSERT INTO sales (product_id, quantity, unit_price, total_price) VALUES (?, ?, ?, ?)`, 
-                    [sale.product_id, sale.quantity, sale.unit_price, sale.total_price]);
-            });
-        }, 1000);
-    }, 500);
-
-    // Inserir mesas padrão se não existirem
-    const insertDefaultTables = `
-        INSERT OR IGNORE INTO tables (number, capacity) VALUES
-        (1, 4), (2, 4), (3, 2), (4, 6), (5, 4),
-        (6, 2), (7, 4), (8, 4), (9, 2), (10, 6)
-    `;
-
-    db.run(insertDefaultTables, (err) => {
+const insertEssentialData = (db) => {
+    // Inserir apenas dados essenciais para o funcionamento do sistema
+    
+    // Garçom padrão para sistema funcionar (usuário pode adicionar mais depois)
+    db.run(`
+        INSERT OR IGNORE INTO waiters (name, shift, commission_rate) VALUES 
+        ('Atendente Padrão', 'integral', 0.00)
+    `, (err) => {
         if (err) {
-            console.error('Erro ao inserir mesas padrão:', err);
+            console.error('Erro ao inserir garçom padrão:', err);
         } else {
-            console.log('✅ Mesas padrão inseridas com sucesso');
+            console.log('✅ Garçom padrão inserido com sucesso');
         }
     });
+
+    // Algumas mesas básicas para demonstração (usuário pode adicionar/remover)
+    const insertBasicTables = `
+        INSERT OR IGNORE INTO tables (number, capacity) VALUES
+        (1, 4), (2, 4), (3, 2), (4, 6)
+    `;
+
+    db.run(insertBasicTables, (err) => {
+        if (err) {
+            console.error('Erro ao inserir mesas básicas:', err);
+        } else {
+            console.log('✅ Mesas básicas inseridas com sucesso');
+        }
+    });
+
+    // Sistema iniciará sem:
+    // - Produtos fictícios
+    // - Categorias fictícias  
+    // - Fornecedores fictícios
+    // - Vendas fictícias
+    console.log('🎯 Sistema iniciado LIMPO - Pronto para dados reais do cliente');
 };
 
 module.exports = initDB;

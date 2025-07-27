@@ -996,6 +996,26 @@ function addToCart(productId, quantity) {
     showAlert('Produto adicionado ao carrinho', 'success');
 }
 
+function addToCartFromModal() {
+    const productId = parseInt(document.getElementById('saleProduct').value);
+    const quantity = parseInt(document.getElementById('saleQuantity').value);
+    
+    if (!productId || !quantity) {
+        showAlert('Preencha todos os campos obrigatórios', 'error');
+        return;
+    }
+
+    addToCart(productId, quantity);
+    
+    // Limpar o formulário após adicionar
+    document.getElementById('saleForm').reset();
+    document.getElementById('salePrice').value = '';
+    document.getElementById('saleTotal').value = '';
+    
+    // Fechar modal
+    closeModal('saleModal');
+}
+
 function removeFromCart(productId) {
     cart = cart.filter(item => item.productId !== productId);
     updateCartCounter();
@@ -1243,10 +1263,34 @@ function renderTablesGrid() {
         
         let orderInfo = '';
         if (table.current_order_id) {
+            // Processar nomes das comandas
+            let commandsDisplay = '';
+            if (table.command_names) {
+                try {
+                    const commandNames = JSON.parse(table.command_names);
+                    if (commandNames && commandNames.length > 1) {
+                        commandsDisplay = `
+                            <p><strong>Comandas (${commandNames.length}):</strong></p>
+                            <ul class="command-list">
+                                ${commandNames.map((name, index) => 
+                                    `<li>Comanda ${index + 1}: ${name}</li>`
+                                ).join('')}
+                            </ul>
+                        `;
+                    } else {
+                        commandsDisplay = `<p><strong>Cliente:</strong> ${table.customer_name || 'Sem nome'}</p>`;
+                    }
+                } catch (e) {
+                    commandsDisplay = `<p><strong>Cliente:</strong> ${table.customer_name || 'Sem nome'}</p>`;
+                }
+            } else {
+                commandsDisplay = `<p><strong>Cliente:</strong> ${table.customer_name || 'Sem nome'}</p>`;
+            }
+            
             orderInfo = `
                 <div class="table-order-info">
                     <h4>Pedido Ativo</h4>
-                    <p><strong>Cliente:</strong> ${table.customer_name || 'Sem nome'}</p>
+                    ${commandsDisplay}
                     <p><strong>Valor:</strong> R$ ${(table.total_amount || 0).toFixed(2)}</p>
                     <p><strong>Aberto:</strong> ${new Date(table.order_opened_at).toLocaleString()}</p>
                 </div>
@@ -1308,7 +1352,45 @@ function renderTablesGrid() {
 function showOpenTableModal(tableId) {
     document.getElementById('openTableId').value = tableId;
     document.getElementById('customerName').value = '';
+    document.getElementById('commandCount').value = '';
+    
+    // Limpar campos de comandas adicionais
+    const additionalCommands = document.getElementById('additionalCommands');
+    additionalCommands.style.display = 'none';
+    document.getElementById('commandFields').innerHTML = '';
+    
     showModal('openTableModal');
+}
+
+// Update command fields based on selected number
+function updateCommandFields() {
+    const commandCount = parseInt(document.getElementById('commandCount').value);
+    const additionalCommands = document.getElementById('additionalCommands');
+    const commandFields = document.getElementById('commandFields');
+    
+    if (commandCount <= 1) {
+        additionalCommands.style.display = 'none';
+        commandFields.innerHTML = '';
+        return;
+    }
+    
+    additionalCommands.style.display = 'block';
+    commandFields.innerHTML = '';
+    
+    // Criar campos para comandas adicionais (começando da 2ª comanda)
+    for (let i = 2; i <= commandCount; i++) {
+        const fieldDiv = document.createElement('div');
+        fieldDiv.className = 'command-field';
+        fieldDiv.innerHTML = `
+            <label>Comanda ${i}:</label>
+            <input type="text" 
+                   id="commandName${i}" 
+                   name="commandName${i}"
+                   placeholder="Nome do cliente da comanda ${i}" 
+                   required>
+        `;
+        commandFields.appendChild(fieldDiv);
+    }
 }
 
 // Show close table modal
@@ -1337,12 +1419,42 @@ async function openTable(event) {
     
     const tableId = document.getElementById('openTableId').value;
     const customerName = document.getElementById('customerName').value;
+    const commandCount = parseInt(document.getElementById('commandCount').value);
+    
+    if (!customerName.trim()) {
+        showAlert('Nome do cliente principal é obrigatório', 'error');
+        return;
+    }
+    
+    if (!commandCount || commandCount < 1) {
+        showAlert('Selecione o número de comandas', 'error');
+        return;
+    }
+    
+    // Coletar nomes das comandas adicionais
+    const commandNames = [customerName]; // Primeira comanda sempre é do cliente principal
+    
+    if (commandCount > 1) {
+        for (let i = 2; i <= commandCount; i++) {
+            const commandNameField = document.getElementById(`commandName${i}`);
+            if (commandNameField && commandNameField.value.trim()) {
+                commandNames.push(commandNameField.value.trim());
+            } else {
+                showAlert(`Nome da comanda ${i} é obrigatório`, 'error');
+                return;
+            }
+        }
+    }
     
     try {
         const response = await fetch(`/api/tables/${tableId}/open`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ customer_name: customerName })
+            body: JSON.stringify({ 
+                customer_name: customerName,
+                command_count: commandCount,
+                command_names: JSON.stringify(commandNames)
+            })
         });
         
         if (!response.ok) {
@@ -1352,7 +1464,7 @@ async function openTable(event) {
         
         closeModal('openTableModal');
         await loadTables();
-        showAlert('Mesa aberta com sucesso!', 'success');
+        showAlert(`Mesa aberta com sucesso! ${commandCount} comanda(s) criada(s).`, 'success');
     } catch (error) {
         console.error('Erro ao abrir mesa:', error);
         showAlert(error.message, 'error');
@@ -1500,8 +1612,10 @@ async function showManageOrderModal(tableId) {
         document.getElementById('orderTableNumber').textContent = table.number;
         document.getElementById('currentOrderId').value = table.current_order_id;
         document.getElementById('orderCustomerName').textContent = table.customer_name || 'Sem nome';
-        document.getElementById('orderWaiterName').textContent = 'Não definido'; // TODO: implementar garçom
         document.getElementById('orderOpenedAt').textContent = new Date(table.order_opened_at).toLocaleString();
+        
+        // Configurar comandas
+        setupOrderCommands(table);
         
         // Carregar produtos no select
         await loadProductsForOrder();
@@ -1515,6 +1629,53 @@ async function showManageOrderModal(tableId) {
     } catch (error) {
         console.error('Erro ao carregar pedido:', error);
         showAlert('Erro ao carregar pedido: ' + error.message, 'error');
+    }
+}
+
+// Setup commands for order modal
+function setupOrderCommands(table) {
+    const commandsInfo = document.getElementById('commandsInfo');
+    const commandsList = document.getElementById('commandsList');
+    const itemCommand = document.getElementById('itemCommand');
+    
+    // Parse command names
+    let commandNames = [];
+    try {
+        if (table.command_names) {
+            commandNames = JSON.parse(table.command_names);
+        } else {
+            commandNames = [table.customer_name || 'Cliente Principal'];
+        }
+    } catch (e) {
+        commandNames = [table.customer_name || 'Cliente Principal'];
+    }
+    
+    // Store current commands globally
+    window.currentCommands = commandNames;
+    
+    if (commandNames.length > 1) {
+        // Show commands info for multiple commands
+        commandsInfo.style.display = 'block';
+        commandsList.innerHTML = commandNames.map((name, index) => `
+            <div class="command-item">
+                <div class="command-number">${index + 1}</div>
+                <div class="command-name">${name}</div>
+            </div>
+        `).join('');
+        
+        // Show command selector in add item form with all options
+        itemCommand.style.display = 'block';
+        itemCommand.innerHTML = '<option value="">Selecione a comanda</option>' +
+            commandNames.map((name, index) => 
+                `<option value="${index + 1}">Comanda ${index + 1}: ${name}</option>`
+            ).join('');
+    } else {
+        // For single command, still show selector but with only one option
+        commandsInfo.style.display = 'none';
+        itemCommand.style.display = 'block';
+        itemCommand.innerHTML = `<option value="1">Comanda 1: ${commandNames[0]}</option>`;
+        itemCommand.value = '1'; // Auto-select the only option
+        window.currentCommands = commandNames;
     }
 }
 
@@ -1544,6 +1705,8 @@ async function addItemToOrder() {
     const productId = document.getElementById('itemProduct').value;
     const quantity = parseInt(document.getElementById('itemQuantity').value);
     const orderId = document.getElementById('currentOrderId').value;
+    const commandSelect = document.getElementById('itemCommand');
+    const commandNumber = commandSelect ? parseInt(commandSelect.value) || 1 : 1;
     
     if (!productId) {
         showAlert('Selecione um produto', 'warning');
@@ -1555,6 +1718,12 @@ async function addItemToOrder() {
         return;
     }
     
+    // Verificar se comanda foi selecionada quando há múltiplas comandas
+    if (window.currentCommands && window.currentCommands.length > 1 && !commandNumber) {
+        showAlert('Selecione uma comanda para o item', 'warning');
+        return;
+    }
+    
     try {
         const response = await fetch('/api/order-items', {
             method: 'POST',
@@ -1562,7 +1731,8 @@ async function addItemToOrder() {
             body: JSON.stringify({
                 order_id: orderId,
                 product_id: productId,
-                quantity: quantity
+                quantity: quantity,
+                command_number: commandNumber
             })
         });
         
@@ -1578,9 +1748,12 @@ async function addItemToOrder() {
             renderOrderItems();
         }
         
-        // Limpar formulário
+        // Limpar formulário (mas manter comanda selecionada se só há uma)
         document.getElementById('itemProduct').value = '';
         document.getElementById('itemQuantity').value = '1';
+        if (window.currentCommands && window.currentCommands.length > 1) {
+            commandSelect.value = '';
+        }
         
         showAlert('Item adicionado com sucesso!', 'success');
         
@@ -1598,7 +1771,7 @@ function renderOrderItems() {
     if (!tbody || !totalElement) return;
     
     if (currentOrderItems.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" class="no-data">Nenhum item no pedido</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" class="no-data">Nenhum item no pedido</td></tr>';
         totalElement.textContent = '0.00';
         return;
     }
@@ -1608,13 +1781,28 @@ function renderOrderItems() {
         const itemTotal = item.total_price || (item.unit_price * item.quantity);
         total += itemTotal;
         
+        // Determinar nome da comanda
+        const commandNumber = item.command_number || 1;
+        let commandName = 'Comanda 1';
+        if (window.currentCommands && window.currentCommands[commandNumber - 1]) {
+            commandName = `Comanda ${commandNumber}: ${window.currentCommands[commandNumber - 1]}`;
+        }
+        
         return `
             <tr>
+                <td>
+                    <div class="command-cell">${commandName}</div>
+                </td>
                 <td>${item.product_name}</td>
                 <td>${item.quantity}</td>
                 <td>R$ ${item.unit_price.toFixed(2)}</td>
                 <td>R$ ${itemTotal.toFixed(2)}</td>
                 <td>
+                    ${window.currentCommands && window.currentCommands.length > 1 ? 
+                        `<button class="btn-edit-command" onclick="showEditItemCommandModal(${item.id}, '${item.product_name}', ${commandNumber})" title="Editar Comanda">
+                            <i class="fas fa-exchange-alt"></i>
+                        </button>` : ''
+                    }
                     <button class="btn btn-small btn-edit" onclick="editOrderItem(${item.id})">
                         <i class="fas fa-edit"></i>
                     </button>
@@ -1756,6 +1944,12 @@ function renderReport(type, data) {
             break;
         case 'revenue':
             renderRevenueReport(container, data);
+            break;
+        case 'sales':
+            renderSalesReport(container, data);
+            break;
+        case 'comparison':
+            renderComparisonReport(container, data);
             break;
         case 'popular':
             renderPopularItemsReport(container, data);
@@ -1942,6 +2136,150 @@ function renderPopularItemsReport(container, data) {
                             <td>R$ ${(item.total_revenue || 0).toFixed(2)}</td>
                             <td>R$ ${(item.avg_unit_price || 0).toFixed(2)}</td>
                             <td>R$ ${(item.current_price || 0).toFixed(2)}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        </div>
+    `;
+}
+
+// Render sales report (vendas avulsas)
+function renderSalesReport(container, data) {
+    if (data.length === 0) {
+        container.innerHTML = '<p class="no-data">Nenhuma venda avulsa encontrada para o período selecionado</p>';
+        return;
+    }
+    
+    const totalRevenue = data.reduce((sum, item) => sum + (item.total_revenue || 0), 0);
+    const totalSales = data.reduce((sum, item) => sum + (item.total_sales || 0), 0);
+    const totalItems = data.reduce((sum, item) => sum + (item.total_items_sold || 0), 0);
+    
+    container.innerHTML = `
+        <div class="report-header">
+            <h3>Relatório de Vendas Avulsas</h3>
+            <div class="report-summary">
+                <div class="summary-grid">
+                    <div class="summary-item">
+                        <span class="summary-label">Total de Vendas:</span>
+                        <span class="summary-value">${totalSales}</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Faturamento Total:</span>
+                        <span class="summary-value">R$ ${totalRevenue.toFixed(2)}</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Itens Vendidos:</span>
+                        <span class="summary-value">${totalItems}</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Ticket Médio:</span>
+                        <span class="summary-value">R$ ${totalSales > 0 ? (totalRevenue / totalSales).toFixed(2) : '0.00'}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="report-table-container">
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Qtd. Vendas</th>
+                        <th>Faturamento</th>
+                        <th>Ticket Médio</th>
+                        <th>Itens Vendidos</th>
+                        <th>Produtos Únicos</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${data.map(item => `
+                        <tr>
+                            <td>${formatDate(item.period)}</td>
+                            <td>${item.total_sales}</td>
+                            <td>R$ ${(item.total_revenue || 0).toFixed(2)}</td>
+                            <td>R$ ${(item.avg_sale_value || 0).toFixed(2)}</td>
+                            <td>${item.total_items_sold}</td>
+                            <td>${item.unique_products}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        </div>
+    `;
+}
+
+// Render comparison report
+function renderComparisonReport(container, data) {
+    if (data.length === 0) {
+        container.innerHTML = '<p class="no-data">Nenhum dado encontrado para comparação</p>';
+        return;
+    }
+    
+    let totalMesas = { transactions: 0, revenue: 0 };
+    let totalAvulsas = { transactions: 0, revenue: 0 };
+    
+    data.forEach(item => {
+        totalMesas.transactions += item.mesas.total_transactions || 0;
+        totalMesas.revenue += item.mesas.total_revenue || 0;
+        totalAvulsas.transactions += item.avulsas.total_transactions || 0;
+        totalAvulsas.revenue += item.avulsas.total_revenue || 0;
+    });
+    
+    const totalGeral = totalMesas.revenue + totalAvulsas.revenue;
+    const percentualMesas = totalGeral > 0 ? (totalMesas.revenue / totalGeral * 100).toFixed(1) : 0;
+    const percentualAvulsas = totalGeral > 0 ? (totalAvulsas.revenue / totalGeral * 100).toFixed(1) : 0;
+    
+    container.innerHTML = `
+        <div class="report-header">
+            <h3>Comparativo: Vendas de Mesas vs Vendas Avulsas</h3>
+            <div class="comparison-summary">
+                <div class="comparison-item">
+                    <h4>Vendas de Mesas</h4>
+                    <div class="comparison-stats">
+                        <p><strong>Transações:</strong> ${totalMesas.transactions}</p>
+                        <p><strong>Faturamento:</strong> R$ ${totalMesas.revenue.toFixed(2)}</p>
+                        <p><strong>Participação:</strong> ${percentualMesas}%</p>
+                        <p><strong>Ticket Médio:</strong> R$ ${totalMesas.transactions > 0 ? (totalMesas.revenue / totalMesas.transactions).toFixed(2) : '0.00'}</p>
+                    </div>
+                </div>
+                <div class="comparison-item">
+                    <h4>Vendas Avulsas</h4>
+                    <div class="comparison-stats">
+                        <p><strong>Transações:</strong> ${totalAvulsas.transactions}</p>
+                        <p><strong>Faturamento:</strong> R$ ${totalAvulsas.revenue.toFixed(2)}</p>
+                        <p><strong>Participação:</strong> ${percentualAvulsas}%</p>
+                        <p><strong>Ticket Médio:</strong> R$ ${totalAvulsas.transactions > 0 ? (totalAvulsas.revenue / totalAvulsas.transactions).toFixed(2) : '0.00'}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="report-table-container">
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th rowspan="2">Data</th>
+                        <th colspan="3">Vendas de Mesas</th>
+                        <th colspan="3">Vendas Avulsas</th>
+                    </tr>
+                    <tr>
+                        <th>Transações</th>
+                        <th>Faturamento</th>
+                        <th>Ticket Médio</th>
+                        <th>Transações</th>
+                        <th>Faturamento</th>
+                        <th>Ticket Médio</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${data.map(item => `
+                        <tr>
+                            <td>${formatDate(item.period)}</td>
+                            <td>${item.mesas.total_transactions || 0}</td>
+                            <td>R$ ${(item.mesas.total_revenue || 0).toFixed(2)}</td>
+                            <td>R$ ${(item.mesas.avg_transaction_value || 0).toFixed(2)}</td>
+                            <td>${item.avulsas.total_transactions || 0}</td>
+                            <td>R$ ${(item.avulsas.total_revenue || 0).toFixed(2)}</td>
+                            <td>R$ ${(item.avulsas.avg_transaction_value || 0).toFixed(2)}</td>
                         </tr>
                     `).join('')}
                 </tbody>
@@ -2331,12 +2669,15 @@ function assignGlobalFunctions() {
     window.deleteSupplier = deleteSupplier;
     window.deleteSale = deleteSale;
     window.addToCart = addToCart;
+    window.addToCartFromModal = addToCartFromModal;
     window.clearCart = clearCart;
     window.removeFromCart = removeFromCart;
+    window.updateCartQuantity = updateCartQuantity;
     window.updateQuantity = updateQuantity;
     window.closeModal = closeModal;
     window.openTableModal = openTableModal;
     window.showOpenTableModal = showOpenTableModal;
+    window.updateCommandFields = updateCommandFields;
     window.showCloseTableModal = showCloseTableModal;
     window.confirmCloseTable = confirmCloseTable;
     window.editTable = editTable;
@@ -2371,12 +2712,15 @@ window.deleteCategory = deleteCategory;
 window.deleteSupplier = deleteSupplier;
 window.deleteSale = deleteSale;
 window.addToCart = addToCart;
+window.addToCartFromModal = addToCartFromModal;
 window.clearCart = clearCart;
 window.removeFromCart = removeFromCart;
+window.updateCartQuantity = updateCartQuantity;
 window.updateQuantity = updateQuantity;
 window.closeModal = closeModal;
 window.openTableModal = openTableModal;
 window.showOpenTableModal = showOpenTableModal;
+window.updateCommandFields = updateCommandFields;
 window.showCloseTableModal = showCloseTableModal;
 window.confirmCloseTable = confirmCloseTable;
 window.deleteTable = deleteTable;
@@ -2430,11 +2774,14 @@ function forceGlobalAssignments() {
     if (typeof deleteSale !== 'undefined') window.deleteSale = deleteSale;
     if (typeof closeModal !== 'undefined') window.closeModal = closeModal;
     if (typeof addToCart !== 'undefined') window.addToCart = addToCart;
+    if (typeof addToCartFromModal !== 'undefined') window.addToCartFromModal = addToCartFromModal;
     if (typeof clearCart !== 'undefined') window.clearCart = clearCart;
     if (typeof removeFromCart !== 'undefined') window.removeFromCart = removeFromCart;
+    if (typeof updateCartQuantity !== 'undefined') window.updateCartQuantity = updateCartQuantity;
     if (typeof updateQuantity !== 'undefined') window.updateQuantity = updateQuantity;
     if (typeof openTableModal !== 'undefined') window.openTableModal = openTableModal;
     if (typeof showOpenTableModal !== 'undefined') window.showOpenTableModal = showOpenTableModal;
+    if (typeof updateCommandFields !== 'undefined') window.updateCommandFields = updateCommandFields;
     if (typeof showCloseTableModal !== 'undefined') window.showCloseTableModal = showCloseTableModal;
     if (typeof confirmCloseTable !== 'undefined') window.confirmCloseTable = confirmCloseTable;
     if (typeof editTable !== 'undefined') window.editTable = editTable;
@@ -2516,4 +2863,103 @@ if (document.readyState === 'loading') {
     });
 } else {
     setTimeout(forceGlobalAssignments, 1000);
+}
+
+// Função para mostrar modal de edição de comanda do item
+function showEditItemCommandModal(itemId, productName, currentCommand) {
+    console.log('Abrindo modal de edição de comanda para item:', itemId);
+    
+    if (!window.currentCommands || window.currentCommands.length <= 1) {
+        showAlert('Não há outras comandas disponíveis para transferir este item', 'info');
+        return;
+    }
+    
+    // Criar HTML do modal dinamicamente
+    const modalHtml = `
+        <div id="editItemCommandModal" class="modal active">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Alterar Comanda do Item</h3>
+                    <button class="close-btn" onclick="closeEditItemCommandModal()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Produto:</strong> ${productName}</p>
+                    <p><strong>Comanda Atual:</strong> Comanda ${currentCommand}${window.currentCommands[currentCommand - 1] ? ': ' + window.currentCommands[currentCommand - 1] : ''}</p>
+                    
+                    <div class="form-group">
+                        <label for="newCommand">Nova Comanda:</label>
+                        <select id="newCommand" required>
+                            ${window.currentCommands.map((name, index) => {
+                                const commandNum = index + 1;
+                                if (commandNum === currentCommand) return '';
+                                return `<option value="${commandNum}">Comanda ${commandNum}: ${name}</option>`;
+                            }).join('')}
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="closeEditItemCommandModal()">Cancelar</button>
+                    <button type="button" class="btn-primary" onclick="updateItemCommand(${itemId}, ${currentCommand})">Alterar</button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Remover modal existente se houver
+    const existingModal = document.getElementById('editItemCommandModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    // Adicionar modal ao body
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+}
+
+// Função para fechar modal de edição de comanda
+function closeEditItemCommandModal() {
+    const modal = document.getElementById('editItemCommandModal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+// Função para atualizar comanda do item
+async function updateItemCommand(itemId, currentCommand) {
+    const newCommandSelect = document.getElementById('newCommand');
+    if (!newCommandSelect || !newCommandSelect.value) {
+        showAlert('Selecione uma nova comanda', 'warning');
+        return;
+    }
+    
+    const newCommand = parseInt(newCommandSelect.value);
+    const orderId = document.getElementById('currentOrderId').value;
+    
+    try {
+        const response = await fetch(`/api/order-items/${itemId}/command`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                command_number: newCommand
+            })
+        });
+        
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Erro ao alterar comanda do item');
+        }
+        
+        // Recarregar itens do pedido
+        const itemsResponse = await fetch(`/api/order-items/${orderId}`);
+        if (itemsResponse.ok) {
+            currentOrderItems = await itemsResponse.json();
+            renderOrderItems();
+        }
+        
+        closeEditItemCommandModal();
+        showAlert('Comanda do item alterada com sucesso!', 'success');
+        
+    } catch (error) {
+        console.error('Erro ao alterar comanda do item:', error);
+        showAlert('Erro ao alterar comanda: ' + error.message, 'error');
+    }
 }

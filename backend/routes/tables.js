@@ -11,7 +11,9 @@ router.get('/', (req, res) => {
             tord.id as current_order_id,
             tord.customer_name,
             tord.total_amount,
-            tord.opened_at as order_opened_at
+            tord.opened_at as order_opened_at,
+            tord.command_count,
+            tord.command_names
         FROM tables t
         LEFT JOIN table_orders tord ON t.id = tord.table_id AND tord.status = 'open'
         ORDER BY t.number
@@ -112,7 +114,7 @@ router.delete('/:id', (req, res) => {
 // POST /api/tables/:id/open - Abrir mesa
 router.post('/:id/open', (req, res) => {
     const { id } = req.params;
-    const { customer_name, waiter_id } = req.body;
+    const { customer_name, command_count, command_names } = req.body;
     
     // Verificar se mesa existe e está disponível
     db.get('SELECT * FROM tables WHERE id = ? AND status = "available"', [id], (err, table) => {
@@ -125,10 +127,18 @@ router.post('/:id/open', (req, res) => {
             return res.status(400).json({ error: 'Mesa não encontrada ou não disponível' });
         }
         
-        // Criar pedido
-        const orderQuery = 'INSERT INTO table_orders (table_id, customer_name, waiter_id) VALUES (?, ?, ?)';
+        // Criar pedido com suporte a comandas múltiplas
+        const orderQuery = `
+            INSERT INTO table_orders (table_id, customer_name, command_count, command_names) 
+            VALUES (?, ?, ?, ?)
+        `;
         
-        db.run(orderQuery, [id, customer_name || '', waiter_id || null], function(err) {
+        db.run(orderQuery, [
+            id, 
+            customer_name || '', 
+            command_count || 1, 
+            command_names || JSON.stringify([customer_name])
+        ], function(err) {
             if (err) {
                 console.error('Erro ao criar pedido:', err);
                 return res.status(500).json({ error: 'Erro interno do servidor' });
@@ -199,6 +209,8 @@ router.get('/:id', (req, res) => {
             tord.customer_name,
             tord.total_amount,
             tord.opened_at as order_opened_at,
+            tord.command_count,
+            tord.command_names,
             w.name as waiter_name
         FROM tables t
         LEFT JOIN table_orders tord ON t.id = tord.table_id AND tord.status = 'open'

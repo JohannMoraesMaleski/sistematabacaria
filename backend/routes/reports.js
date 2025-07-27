@@ -201,6 +201,131 @@ const reportRoutes = (db) => {
         });
     });
 
+    // GET /api/reports/sales - Relatório de vendas avulsas
+    router.get('/sales', (req, res) => {
+        const { start_date, end_date, group_by } = req.query;
+        
+        let dateFilter = '';
+        let groupBy = '';
+        let params = [];
+        
+        if (start_date && end_date) {
+            dateFilter = `WHERE DATE(s.sale_date) BETWEEN ? AND ?`;
+            params.push(start_date, end_date);
+        } else {
+            dateFilter = `WHERE s.sale_date >= DATE('now', '-30 days')`;
+        }
+        
+        switch (group_by) {
+            case 'day':
+                groupBy = `GROUP BY DATE(s.sale_date)`;
+                break;
+            case 'week':
+                groupBy = `GROUP BY strftime('%Y-%W', s.sale_date)`;
+                break;
+            case 'month':
+                groupBy = `GROUP BY strftime('%Y-%m', s.sale_date)`;
+                break;
+            default:
+                groupBy = `GROUP BY DATE(s.sale_date)`;
+        }
+
+        const query = `
+            SELECT 
+                DATE(s.sale_date) as period,
+                COUNT(s.id) as total_sales,
+                SUM(s.total_price) as total_revenue,
+                AVG(s.total_price) as avg_sale_value,
+                SUM(s.quantity) as total_items_sold,
+                COUNT(DISTINCT s.product_id) as unique_products
+            FROM sales s
+            ${dateFilter}
+            ${groupBy}
+            ORDER BY period DESC
+        `;
+        
+        db.all(query, params, (err, rows) => {
+            if (err) {
+                console.error('Erro ao gerar relatório de vendas avulsas:', err);
+                return res.status(500).json({ error: 'Erro interno do servidor' });
+            }
+            
+            res.json(rows);
+        });
+    });
+
+    // GET /api/reports/comparison - Relatório comparativo entre vendas de mesas e avulsas
+    router.get('/comparison', (req, res) => {
+        const { start_date, end_date } = req.query;
+        
+        let dateFilter = '';
+        let params = [];
+        
+        if (start_date && end_date) {
+            dateFilter = `WHERE DATE(period_date) BETWEEN ? AND ?`;
+            params = [start_date, end_date, start_date, end_date];
+        } else {
+            dateFilter = `WHERE period_date >= DATE('now', '-30 days')`;
+            params = [];
+        }
+        
+        const query = `
+            WITH table_sales AS (
+                SELECT 
+                    DATE(tord.closed_at) as period_date,
+                    'mesas' as sale_type,
+                    COUNT(tord.id) as total_transactions,
+                    SUM(tord.total_amount) as total_revenue,
+                    AVG(tord.total_amount) as avg_transaction_value
+                FROM table_orders tord
+                WHERE tord.status = 'closed' 
+                ${start_date && end_date ? 'AND DATE(tord.closed_at) BETWEEN ? AND ?' : 'AND tord.closed_at >= DATE(\'now\', \'-30 days\')'}
+                GROUP BY DATE(tord.closed_at)
+            ),
+            direct_sales AS (
+                SELECT 
+                    DATE(s.sale_date) as period_date,
+                    'avulsas' as sale_type,
+                    COUNT(s.id) as total_transactions,
+                    SUM(s.total_price) as total_revenue,
+                    AVG(s.total_price) as avg_transaction_value
+                FROM sales s
+                ${start_date && end_date ? 'WHERE DATE(s.sale_date) BETWEEN ? AND ?' : 'WHERE s.sale_date >= DATE(\'now\', \'-30 days\')'}
+                GROUP BY DATE(s.sale_date)
+            )
+            SELECT * FROM table_sales
+            UNION ALL
+            SELECT * FROM direct_sales
+            ORDER BY period_date DESC, sale_type
+        `;
+        
+        db.all(query, params, (err, rows) => {
+            if (err) {
+                console.error('Erro ao gerar relatório comparativo:', err);
+                return res.status(500).json({ error: 'Erro interno do servidor' });
+            }
+            
+            // Agrupar dados por período para facilitar a visualização
+            const grouped = {};
+            rows.forEach(row => {
+                if (!grouped[row.period_date]) {
+                    grouped[row.period_date] = {
+                        period: row.period_date,
+                        mesas: { total_transactions: 0, total_revenue: 0, avg_transaction_value: 0 },
+                        avulsas: { total_transactions: 0, total_revenue: 0, avg_transaction_value: 0 }
+                    };
+                }
+                grouped[row.period_date][row.sale_type] = {
+                    total_transactions: row.total_transactions,
+                    total_revenue: row.total_revenue,
+                    avg_transaction_value: row.avg_transaction_value
+                };
+            });
+            
+            res.json(Object.values(grouped));
+        });
+    });
+
     return router;
 };
 
