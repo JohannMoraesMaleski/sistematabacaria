@@ -57,8 +57,10 @@ const initDB = (db) => {
         db.run(`
             CREATE TABLE IF NOT EXISTS tables (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT,
                 number INTEGER UNIQUE NOT NULL,
                 capacity INTEGER NOT NULL DEFAULT 4,
+                description TEXT,
                 status TEXT CHECK(status IN ('available', 'occupied', 'reserved')) DEFAULT 'available',
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP
             )

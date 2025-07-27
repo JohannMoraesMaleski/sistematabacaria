@@ -1334,7 +1334,9 @@ function renderTablesGrid() {
                     <div class="table-status ${statusClass}">${statusText}</div>
                 </div>
                 <div class="table-info">
+                    <p><i class="fas fa-tag"></i> ${table.name || `Mesa #${table.number}`}</p>
                     <p><i class="fas fa-users"></i> Capacidade: ${table.capacity} pessoas</p>
+                    ${table.description ? `<p><i class="fas fa-info-circle"></i> ${table.description}</p>` : ''}
                 </div>
                 ${orderInfo}
                 <div class="table-actions">
@@ -1511,8 +1513,10 @@ function editTable(id) {
     
     document.getElementById('tableModalTitle').textContent = 'Editar Mesa';
     document.getElementById('tableId').value = table.id;
+    document.getElementById('tableName').value = table.name || '';
     document.getElementById('tableNumber').value = table.number;
     document.getElementById('tableCapacity').value = table.capacity;
+    document.getElementById('tableDescription').value = table.description || '';
     showModal('tableModal');
 }
 
@@ -1521,10 +1525,12 @@ async function saveTable(event) {
     event.preventDefault();
     
     const id = document.getElementById('tableId').value;
+    const name = document.getElementById('tableName').value;
     const number = document.getElementById('tableNumber').value;
     const capacity = document.getElementById('tableCapacity').value;
+    const description = document.getElementById('tableDescription').value;
     
-    if (!number || !capacity) {
+    if (!name || !number || !capacity) {
         showAlert('Preencha todos os campos obrigatórios', 'error');
         return;
     }
@@ -1537,8 +1543,10 @@ async function saveTable(event) {
             method,
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
+                name: name,
                 number: parseInt(number),
                 capacity: parseInt(capacity),
+                description: description,
                 status: 'available'
             })
         });
