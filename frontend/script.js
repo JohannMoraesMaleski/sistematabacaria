@@ -1657,12 +1657,40 @@ function setupOrderCommands(table) {
         // Show commands info for multiple commands
         commandsInfo.style.display = 'block';
         commandsList.innerHTML = commandNames.map((name, index) => `
-            <div class="command-item">
+            <div class="command-item clickable-command" data-command-index="${index}">
                 <div class="command-number">${index + 1}</div>
                 <div class="command-name">${name}</div>
             </div>
-        `).join('');
-        
+        `).join('') +
+        `<button id="showAllCommandsBtn" class="btn btn-secondary btn-small" style="margin-top:8px;display:none;width:100%">Mostrar todos</button>`;
+
+        // Adicionar event listeners para cada comanda clicável
+        setTimeout(() => {
+            const commandItems = commandsList.querySelectorAll('.clickable-command');
+            commandItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const cmdIndex = parseInt(this.getAttribute('data-command-index'));
+                    filterOrderItemsByCommand(cmdIndex);
+                    // Destacar selecionada
+                    commandItems.forEach(i => i.classList.remove('selected-command'));
+                    this.classList.add('selected-command');
+                    // Mostrar botão de mostrar todos
+                    const showAllBtn = document.getElementById('showAllCommandsBtn');
+                    if (showAllBtn) showAllBtn.style.display = 'block';
+                });
+            });
+            // Botão para mostrar todos
+            const showAllBtn = document.getElementById('showAllCommandsBtn');
+            if (showAllBtn) {
+                showAllBtn.addEventListener('click', function() {
+                    renderOrderItems();
+                    // Remover destaque
+                    commandItems.forEach(i => i.classList.remove('selected-command'));
+                    showAllBtn.style.display = 'none';
+                });
+            }
+        }, 0);
+
         // Show command selector in add item form with all options
         itemCommand.style.display = 'block';
         itemCommand.innerHTML = '<option value="">Selecione a comanda</option>' +
@@ -1677,6 +1705,122 @@ function setupOrderCommands(table) {
         itemCommand.value = '1'; // Auto-select the only option
         window.currentCommands = commandNames;
     }
+}
+
+// Filtra os itens do pedido pela comanda selecionada e atualiza a tabela principal
+function filterOrderItemsByCommand(commandIndex) {
+    const tbody = document.getElementById('orderItemsList');
+    const totalElement = document.getElementById('orderTotal');
+    if (!tbody || !totalElement) return;
+    const items = (window.currentOrderItems || currentOrderItems || []).filter(item => (item.command_number || 1) === commandIndex + 1);
+    let total = 0;
+    if (items.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="no-data">Nenhum item nesta comanda</td></tr>';
+        totalElement.textContent = '0.00';
+        return;
+    }
+    tbody.innerHTML = items.map(item => {
+        const itemTotal = item.total_price || (item.unit_price * item.quantity);
+        total += itemTotal;
+        // Determinar nome da comanda
+        const commandNumber = item.command_number || 1;
+        let commandName = 'Comanda 1';
+        if (window.currentCommands && window.currentCommands[commandNumber - 1]) {
+            commandName = `Comanda ${commandNumber}: ${window.currentCommands[commandNumber - 1]}`;
+        }
+        return `
+            <tr>
+                <td><div class="command-cell">${commandName}</div></td>
+                <td>${item.product_name}</td>
+                <td>${item.quantity}</td>
+                <td>R$ ${item.unit_price.toFixed(2)}</td>
+                <td>R$ ${itemTotal.toFixed(2)}</td>
+                <td>
+                    ${window.currentCommands && window.currentCommands.length > 1 ? 
+                        `<button class="btn-edit-command" onclick="showEditItemCommandModal(${item.id}, '${item.product_name}', ${commandNumber})" title="Editar Comanda">
+                            <i class="fas fa-exchange-alt"></i>
+                        </button>` : ''
+                    }
+                    <button class="btn btn-small btn-edit" onclick="editOrderItem(${item.id})">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-small btn-delete" onclick="removeOrderItem(${item.id})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+    totalElement.textContent = total.toFixed(2);
+}
+
+// Modal para exibir itens e total de uma comanda específica
+function showCommandItemsModal(commandIndex) {
+    // Filtrar itens da comanda selecionada
+    const items = (window.currentOrderItems || currentOrderItems || []).filter(item => (item.command_number || 1) === commandIndex + 1);
+    const commandName = (window.currentCommands && window.currentCommands[commandIndex]) ? window.currentCommands[commandIndex] : `Comanda ${commandIndex + 1}`;
+    let total = 0;
+    let itemsHtml = '';
+    if (items.length === 0) {
+        itemsHtml = '<tr><td colspan="4" class="no-data">Nenhum item nesta comanda</td></tr>';
+    } else {
+        itemsHtml = items.map(item => {
+            const itemTotal = item.total_price || (item.unit_price * item.quantity);
+            total += itemTotal;
+            return `<tr>
+                <td>${item.product_name}</td>
+                <td>${item.quantity}</td>
+                <td>R$ ${item.unit_price.toFixed(2)}</td>
+                <td>R$ ${itemTotal.toFixed(2)}</td>
+            </tr>`;
+        }).join('');
+    }
+
+    // Criar modal se não existir
+    let modal = document.getElementById('commandItemsModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'commandItemsModal';
+        modal.className = 'modal';
+        modal.innerHTML = `
+            <div class="modal-content">
+                <span class="close" id="closeCommandItemsModal">&times;</span>
+                <h3 id="commandItemsModalTitle"></h3>
+                <div class="command-items-list">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Produto</th>
+                                <th>Qtd</th>
+                                <th>Unitário</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody id="commandItemsTableBody"></tbody>
+                    </table>
+                    <div class="command-items-total">Total: <span id="commandItemsTotal"></span></div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    }
+    // Preencher dados
+    document.getElementById('commandItemsModalTitle').textContent = `Itens da Comanda ${commandIndex + 1}: ${commandName}`;
+    document.getElementById('commandItemsTableBody').innerHTML = itemsHtml;
+    document.getElementById('commandItemsTotal').textContent = `R$ ${total.toFixed(2)}`;
+
+    // Mostrar modal
+    modal.style.display = 'block';
+    // Fechar modal
+    document.getElementById('closeCommandItemsModal').onclick = function() {
+        modal.style.display = 'none';
+    };
+    // Fechar ao clicar fora
+    window.onclick = function(event) {
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    };
 }
 
 // Load products for order
@@ -2374,6 +2518,23 @@ window.onclick = function(event) {
     });
 }
 
+// Exibe o modal de pagamento ao clicar em Finalizar Pedido
+function showPaymentModal() {
+    // Preencher dados do pedido no modal de pagamento
+    const orderId = document.getElementById('currentOrderId').value;
+    const tableNumber = document.getElementById('orderTableNumber').textContent;
+    const total = document.getElementById('orderTotal').textContent;
+    document.getElementById('paymentOrderId').value = orderId;
+    document.getElementById('paymentTableNumber').textContent = tableNumber;
+    document.getElementById('paymentTotal').textContent = total;
+    document.getElementById('finalAmount').value = total;
+    document.getElementById('discount').value = 0;
+    document.getElementById('amountPaid').value = '';
+    // Carregar métodos de pagamento se necessário
+    // Exibir modal
+    showModal('paymentModal');
+}
+
 // Utility functions
 function formatCurrency(value) {
     return new Intl.NumberFormat('pt-BR', {
@@ -2686,6 +2847,7 @@ function assignGlobalFunctions() {
     window.addItemToOrder = addItemToOrder;
     window.removeOrderItem = removeOrderItem;
     window.editOrderItem = editOrderItem;
+    window.showPaymentModal = showPaymentModal;
 
     console.log('✅ Funções globais atribuídas:', {
         showProductModal: typeof window.showProductModal,
@@ -2725,6 +2887,7 @@ window.showCloseTableModal = showCloseTableModal;
 window.confirmCloseTable = confirmCloseTable;
 window.deleteTable = deleteTable;
 window.showManageOrderModal = showManageOrderModal;
+window.showPaymentModal = showPaymentModal;
 
 console.log('✅ Funções globais carregadas:', {
     showProductModal: typeof window.showProductModal,
@@ -2790,6 +2953,7 @@ function forceGlobalAssignments() {
     if (typeof addItemToOrder !== 'undefined') window.addItemToOrder = addItemToOrder;
     if (typeof removeOrderItem !== 'undefined') window.removeOrderItem = removeOrderItem;
     if (typeof editOrderItem !== 'undefined') window.editOrderItem = editOrderItem;
+    if (typeof showPaymentModal !== 'undefined') window.showPaymentModal = showPaymentModal;
     
     console.log('✅ Funções atribuídas globalmente:', {
         showProductModal: typeof window.showProductModal,
@@ -2867,13 +3031,23 @@ if (document.readyState === 'loading') {
 
 // Função para mostrar modal de edição de comanda do item
 function showEditItemCommandModal(itemId, productName, currentCommand) {
-    console.log('Abrindo modal de edição de comanda para item:', itemId);
-    
     if (!window.currentCommands || window.currentCommands.length <= 1) {
         showAlert('Não há outras comandas disponíveis para transferir este item', 'info');
         return;
     }
-    
+    // Remover modal existente se houver
+    const existingModal = document.getElementById('editItemCommandModal');
+    if (existingModal) existingModal.remove();
+
+    // Montar opções do select
+    let options = '';
+    window.currentCommands.forEach((name, idx) => {
+        const commandNum = idx + 1;
+        if (commandNum !== currentCommand) {
+            options += `<option value="${commandNum}">Comanda ${commandNum}: ${name}</option>`;
+        }
+    });
+
     // Criar HTML do modal dinamicamente
     const modalHtml = `
         <div id="editItemCommandModal" class="modal active">
@@ -2885,34 +3059,28 @@ function showEditItemCommandModal(itemId, productName, currentCommand) {
                 <div class="modal-body">
                     <p><strong>Produto:</strong> ${productName}</p>
                     <p><strong>Comanda Atual:</strong> Comanda ${currentCommand}${window.currentCommands[currentCommand - 1] ? ': ' + window.currentCommands[currentCommand - 1] : ''}</p>
-                    
                     <div class="form-group">
                         <label for="newCommand">Nova Comanda:</label>
                         <select id="newCommand" required>
-                            ${window.currentCommands.map((name, index) => {
-                                const commandNum = index + 1;
-                                if (commandNum === currentCommand) return '';
-                                return `<option value="${commandNum}">Comanda ${commandNum}: ${name}</option>`;
-                            }).join('')}
+                            <option value="">Selecione</option>
+                            ${options}
                         </select>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn-secondary" onclick="closeEditItemCommandModal()">Cancelar</button>
-                    <button type="button" class="btn-primary" onclick="updateItemCommand(${itemId}, ${currentCommand})">Alterar</button>
+                    <button type="button" class="btn-primary" id="btnAlterarComanda" disabled onclick="updateItemCommand(${itemId}, ${currentCommand})">Alterar</button>
                 </div>
             </div>
         </div>
     `;
-    
-    // Remover modal existente se houver
-    const existingModal = document.getElementById('editItemCommandModal');
-    if (existingModal) {
-        existingModal.remove();
-    }
-    
-    // Adicionar modal ao body
     document.body.insertAdjacentHTML('beforeend', modalHtml);
+    // Habilitar botão apenas se selecionar uma opção
+    const select = document.getElementById('newCommand');
+    const btn = document.getElementById('btnAlterarComanda');
+    select.addEventListener('change', function() {
+        btn.disabled = !select.value;
+    });
 }
 
 // Função para fechar modal de edição de comanda

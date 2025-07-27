@@ -185,64 +185,51 @@ O sistema foi completamente redesenhado com um visual moderno e profissional, in
 
 - **Backend**: Node.js, Express.js
 - **Banco de Dados**: SQLite
-- **Frontend**: HTML5, CSS3, JavaScript (Vanilla)
-- **Design e UX**: 
-  - CSS Grid & Flexbox para layouts responsivos
-  - Gradientes CSS para efeitos visuais
-  - Glassmorphism com backdrop-filter
-  - Animações CSS com cubic-bezier otimizadas
+### Produtos
+- Cadastro de novos produtos com formulários modernos
+- Edição de produtos existentes via modais elegantes
+- Controle de estoque com validações em tempo real
+- Associação com categorias e fornecedores via dropdowns estilizados
+- Tabelas responsivas com hover effects
   - Font Awesome para ícones
-  - Typography moderna e hierárquica
-  - Sistema de design responsivo com breakpoints
-  - Micro-interações e feedback visual avançado
-
+### Categorias
+- Gestão de categorias de produtos com interface intuitiva
+- Cadastro e edição de categorias via modais profissionais
+- Validação de dependências antes da exclusão
 ## Melhorias de UX e Responsividade - Versão 3.0
-
-### Transições Ultra-Suaves
-- **Animações aprimoradas** com cubic-bezier para movimento natural
-- **Efeitos ripple** nos cliques para feedback visual instantâneo
-- **Micro-animações** nos ícones dos botões com rotação e escala
+### Fornecedores
+- Cadastro de fornecedores com formulários completos
+- Informações de contato completas organizadas em cards
+- Edição de dados dos fornecedores com interface moderna
+- Sistema de busca e filtros visuais
 - **60fps garantidos** com hardware acceleration
 - **Transições de 400ms** otimizadas para fluidez
 
-### Responsividade Avançada
-- **Botões adaptativos** que se redimensionam em dispositivos móveis
-- **Touch targets** de pelo menos 44px para facilitar o toque
-- **Layout flexível** dos botões em telas pequenas
-- **Otimizações específicas** para tablets e smartphones
 - **Breakpoints otimizados** em 768px e 480px
-
-### Feedback Visual Aprimorado
-- **Estados de loading** com spinner animado
-- **Estados de sucesso/erro** com cores e animações específicas
-- **Hover effects** mais suaves e responsivos
 - **Efeitos de pressionamento** para feedback tátil
-- **Indicadores visuais** para todas as ações
-
-### Acessibilidade Melhorada
-- **Focus indicators** mais visíveis para navegação por teclado
-- **High contrast mode** support
-- **Reduced motion** support para usuários sensíveis
-- **ARIA labels** e tooltips informativos
-- **Keyboard navigation** otimizada
-
-### Performance Otimizada
+## Dados de Teste
+O sistema pode ser iniciado com dados reais de produtos, categorias e fornecedores, conforme a necessidade do estabelecimento. Não há mais produtos fictícios ou exemplos genéricos pré-cadastrados. Recomenda-se cadastrar os itens reais do estoque via interface de produtos.
 - **Will-change** properties para otimização GPU
-- **Event delegation** para melhor performance
-- **Debounced animations** em dispositivos móveis
-- **Hardware acceleration** em todas as transições
-- **Otimizações específicas** para mobile
-
-## Instalação e Execução
-
-### Pré-requisitos
+### Sistema de Comandas Múltiplas
+- **Configuração Flexível**: Escolha entre 1 a 6 comandas por mesa conforme necessidade
+- **Interface Dinâmica**: Formulário que se adapta automaticamente ao número de comandas
+- **Identificação de Clientes**: Campo obrigatório para nome de cada cliente
+- **Gestão Individual**: Cada comanda funciona de forma independente
+- **Visualização Organizada**: Lista de comandas ativas com nomes dos clientes
+- **Atribuição de Produtos**: Seleção obrigatória de comanda ao adicionar itens
+- **Transferência de Itens**: Sistema para transferir itens entre comandas
+- **Validação Inteligente**: Impede adicionar produtos sem especificar a comanda
+- **Filtro por Comanda**: Clique no nome da comanda na lista de itens para filtrar e visualizar apenas os itens daquela comanda, com total individual. Botão "Mostrar todos" para retornar à visualização geral.
 - Node.js (versão 14 ou superior)
-- npm
-
-### Passos para executar
-
-1. **Clone o repositório**
-   ```bash
+### Melhorias na Interface
+- **Select de Comandas**: Campo sempre visível ao adicionar produtos
+- **Coluna de Identificação**: Mostra claramente qual cliente pediu cada item
+- **Botão de Transferência**: Ícone intuitivo para mover itens entre comandas
+- **Modal de Edição**: Interface dedicada para alterar comanda de itens
+- **Filtro Direto**: Clique no nome da comanda para filtrar itens e totais
+- **Botão "Mostrar todos"**: Retorna à visualização geral de todos os itens
+- **Feedback Visual**: Cores e estilos diferenciados para comandas
+- **Layout Responsivo**: Grid que se adapta ao número de comandas ativas
    git clone <url-do-repositorio>
    cd sistematabacaria2.0
    ```
@@ -257,6 +244,23 @@ O sistema foi completamente redesenhado com um visual moderno e profissional, in
    npm start
    ```
 
+### Como Testar as Novas Funcionalidades:
+#### Comandas Múltiplas (v5.0):
+1. **Abra uma mesa** e selecione "2 ou mais comandas" no dropdown
+2. **Digite os nomes** dos clientes para cada comanda
+3. **Confirme a abertura** e vá para "Gerenciar" a mesa
+4. **Adicione produtos** selecionando a comanda de cada cliente
+5. **Visualize a organização** na coluna "Comanda" da lista de itens
+6. **Clique no nome da comanda** para filtrar e ver apenas os itens daquele cliente, com total individual
+7. **Use o botão "Mostrar todos"** para retornar à visualização geral
+8. **Teste a transferência** usando o botão de transferir itens entre comandas
+
+#### Funcionalidades Anteriores:
+1. **Acesse a aba "Mesas"** para ver o dashboard visual
+2. **Abra uma mesa** clicando em "Abrir" nas mesas disponíveis
+3. **Gerencie pedidos** usando o botão "Gerenciar" nas mesas ocupadas
+4. **Visualize relatórios** na aba "Relatórios" com diferentes filtros
+5. **Explore as métricas** em tempo real no dashboard principal
 4. **Acesse o sistema**
    - Abra o navegador e acesse: `http://localhost:3000`
 

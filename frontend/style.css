@@ -1,3 +1,129 @@
+/* ====== Comandas Modal e Comandas Clicáveis ====== */
+.clickable-command {
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
+  border-radius: 6px;
+  padding: 6px 10px;
+  margin-bottom: 4px;
+}
+.clickable-command:hover {
+  background: #f0f4fa;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  color: #1a237e;
+}
+
+#commandItemsModal {
+  display: none;
+  position: fixed;
+  z-index: 1200;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: auto;
+  background: rgba(0,0,0,0.35);
+  animation: fadeIn 0.2s;
+}
+#commandItemsModal .modal-content {
+  background: #fff;
+  margin: 60px auto;
+  padding: 28px 32px 20px 32px;
+  border-radius: 12px;
+  max-width: 420px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  position: relative;
+  animation: slideDown 0.25s;
+}
+#commandItemsModal .close {
+  position: absolute;
+  top: 12px;
+  right: 18px;
+  font-size: 1.7rem;
+  color: #888;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+#commandItemsModal .close:hover {
+  color: #e53935;
+}
+#commandItemsModal h3 {
+  margin-top: 0;
+  margin-bottom: 18px;
+  font-size: 1.25rem;
+  color: #263159;
+  text-align: center;
+}
+#commandItemsModal .command-items-list {
+  margin-bottom: 10px;
+}
+#commandItemsModal table.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 10px;
+}
+#commandItemsModal table th, #commandItemsModal table td {
+  padding: 7px 6px;
+  text-align: left;
+  border-bottom: 1px solid #e0e0e0;
+  font-size: 0.98rem;
+}
+#commandItemsModal table th {
+  background: #f5f7fa;
+  color: #263159;
+  font-weight: 600;
+}
+#commandItemsModal .command-items-total {
+  text-align: right;
+  font-size: 1.08rem;
+  font-weight: 600;
+  color: #263159;
+  margin-top: 8px;
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes slideDown {
+  from { transform: translateY(-40px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+/* Botões modernos e centralizados para Fechar e Finalizar Pedido do modal de pedido */
+.order-actions-modern {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 2rem;
+}
+.order-actions-modern .btn-secondary {
+    background: linear-gradient(135deg, #6366f1 0%, #3b82f6 100%);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    padding: 0.9rem 2.2rem;
+    box-shadow: 0 4px 16px rgba(99,102,241,0.15);
+    transition: all 0.3s cubic-bezier(.25,.46,.45,.94);
+}
+.order-actions-modern .btn-secondary:hover {
+    background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
+    transform: translateY(-2px) scale(1.04);
+}
+.order-actions-modern .btn-success {
+    background: linear-gradient(135deg, #10b981 0%, #22d3ee 100%);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    padding: 0.9rem 2.2rem;
+    box-shadow: 0 4px 16px rgba(16,185,129,0.15);
+    transition: all 0.3s cubic-bezier(.25,.46,.45,.94);
+}
+.order-actions-modern .btn-success:hover {
+    background: linear-gradient(135deg, #22d3ee 0%, #10b981 100%);
+    transform: translateY(-2px) scale(1.04);
+}
 * {
     margin: 0;
     padding: 0;
