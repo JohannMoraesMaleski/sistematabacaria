@@ -1,3 +1,189 @@
+/* Botão Adicionar ao Carrinho laranja com borda arredondada especial */
+.btn-warning {
+    background: linear-gradient(135deg, #f59e42 0%, #fbbf24 100%);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 0.8rem 1.5rem;
+    box-shadow: 0 4px 15px rgba(251,191,36,0.18), 0 2px 8px rgba(0,0,0,0.08);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(.25,.46,.45,.94);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    position: relative;
+    overflow: hidden;
+}
+.btn-warning:hover {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e42 100%);
+    transform: translateY(-2px) scale(1.04);
+    box-shadow: 0 8px 25px rgba(251,191,36,0.22), 0 4px 16px rgba(0,0,0,0.12);
+}
+.btn-warning:active {
+    transform: scale(0.98);
+}
+.btn-warning:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(251,191,36,0.25);
+}
+/* Botão Finalizar Venda no carrinho (igual ao Limpar Carrinho, mas verde/azul) */
+#finalizeSaleBtn.btn-success {
+    background: linear-gradient(135deg, #10b981 0%, #22d3ee 100%);
+    color: #fff;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 12px;
+    cursor: pointer;
+    font-family: Arial, sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    box-shadow:
+        0 4px 15px rgba(16, 185, 129, 0.3),
+        0 2px 8px rgba(0,0,0,0.1);
+    position: relative;
+    overflow: hidden;
+    transform: translateZ(0);
+    will-change: transform, box-shadow;
+    border: 2px solid transparent;
+    -webkit-tap-highlight-color: transparent;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    min-height: 44px;
+}
+
+#finalizeSaleBtn.btn-success::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    transition: left 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    z-index: 1;
+}
+
+#finalizeSaleBtn.btn-success::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+    border-radius: 50%;
+    transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transform: translate(-50%, -50%);
+    z-index: 2;
+    opacity: 0;
+}
+
+#finalizeSaleBtn.btn-success:hover::before {
+    left: 100%;
+}
+
+#finalizeSaleBtn.btn-success:hover::after {
+    width: 300px;
+    height: 300px;
+    opacity: 1;
+}
+
+#finalizeSaleBtn.btn-success:hover {
+    background: linear-gradient(135deg, #22d3ee 0%, #10b981 100%);
+    transform: translateY(-3px) scale(1.05) translateZ(0);
+    box-shadow:
+        0 8px 25px rgba(16, 185, 129, 0.4),
+        0 4px 16px rgba(0,0,0,0.15),
+        inset 0 1px 0 rgba(255,255,255,0.2);
+    border-color: rgba(255,255,255,0.3);
+}
+
+#finalizeSaleBtn.btn-success:active {
+    transform: translateY(-1px) scale(1.02) translateZ(0);
+    transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow:
+        0 4px 15px rgba(16, 185, 129, 0.3),
+        0 2px 8px rgba(0,0,0,0.1);
+}
+
+#finalizeSaleBtn.btn-success:focus {
+    outline: none;
+    box-shadow:
+        0 6px 20px rgba(16, 185, 129, 0.4),
+        0 3px 10px rgba(0,0,0,0.15),
+        0 0 0 3px rgba(16, 185, 129, 0.3);
+}
+
+#finalizeSaleBtn.btn-success:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    filter: grayscale(0.3);
+}
+.button-group {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    gap: 8px;
+}
+
+.button-group .btn {
+    margin: 0;
+    flex: 0 0 auto;
+    min-width: 0;
+    height: 42px;
+}
+/* Garantir que os botões dentro de .button-group fiquem um à esquerda e outro à direita */
+.button-group {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    gap: 0;
+}
+/* Garantir altura e largura idênticas para todos os botões de ação das mesas */
+.table-actions .btn,
+.button-group .btn {
+    min-width: 120px !important;
+    max-width: 120px !important;
+    width: 120px !important;
+    min-height: 42px !important;
+    max-height: 42px !important;
+    height: 42px !important;
+    padding: 0 !important;
+    font-size: 1em;
+    box-sizing: border-box;
+}
+/* Padronizar dimensões dos botões de ação das mesas */
+.table-actions .btn,
+.button-group .btn {
+    min-width: 110px;
+    max-width: 110px;
+    width: 110px;
+    padding: 8px 0 !important;
+    font-size: 0.95em;
+    box-sizing: border-box;
+}
+
+.table-actions .btn-edit,
+.table-actions .btn-delete,
+.button-group .btn-edit,
+.button-group .btn-delete {
+    min-width: 110px;
+    max-width: 110px;
+    width: 110px;
+    padding: 8px 0 !important;
+    font-size: 0.95em;
+    box-sizing: border-box;
+}
 /* ====== Comandas Modal e Comandas Clicáveis ====== */
 .clickable-command {
   cursor: pointer;
@@ -1021,7 +1207,7 @@ body {
     background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
     color: white;
     border: none;
-    padding: 0.7rem 1.2rem;
+    /* padding removido para padronização via .table-actions/.button-group */
     border-radius: 10px;
     cursor: pointer;
     font-family: Arial, sans-serif;
@@ -1128,7 +1314,7 @@ body {
     background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
     color: white;
     border: none;
-    padding: 0.7rem 1.2rem;
+    /* padding removido para padronização via .table-actions/.button-group */
     border-radius: 10px;
     cursor: pointer;
     font-family: Arial, sans-serif;
@@ -1382,7 +1568,7 @@ form {
 .form-actions {
     display: flex;
     gap: 1rem;
-    justify-content: flex-end;
+    justify-content: center;
     margin-top: 2rem;
     padding-top: 2rem;
     border-top: 2px solid #e9ecef;
@@ -2868,14 +3054,17 @@ button,
 }
 
 .table-actions .btn {
-    flex: 1;
+    flex: 1 1 120px;
+    min-width: 110px;
     padding: 8px 12px;
-    font-size: 14px;
+    font-size: 15px;
     border-radius: 6px;
     border: none;
     cursor: pointer;
     transition: all 0.3s ease;
     font-weight: 600;
+    white-space: normal;
+    word-break: break-word;
 }
 
 .btn-open {
@@ -3197,7 +3386,7 @@ button,
 .cart-actions {
     display: flex;
     gap: 15px;
-    justify-content: space-between;
+    justify-content: center;
 }
 
 .cart-actions .btn {

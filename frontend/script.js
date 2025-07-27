@@ -1303,27 +1303,44 @@ function renderTablesGrid() {
                 <button class="btn btn-open" onclick="showOpenTableModal(${table.id})">
                     <i class="fas fa-play"></i> Abrir
                 </button>
-                <button class="btn btn-edit" onclick="editTable(${table.id})">
-                    <i class="fas fa-edit"></i> Editar
-                </button>
+                <div class="button-group">
+                    <button class="btn btn-edit" onclick="editTable(${table.id})">
+                        <i class="fas fa-edit"></i> Editar
+                    </button>
+                    <button class="btn btn-delete" onclick="deleteTable(${table.id})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
             `;
         } else if (statusClass === 'occupied') {
             actions = `
-                <button class="btn btn-primary" onclick="showManageOrderModal(${table.id})">
-                    <i class="fas fa-utensils"></i> Gerenciar
-                </button>
-                <button class="btn btn-close" onclick="showCloseTableModal(${table.id})">
-                    <i class="fas fa-stop"></i> Fechar
-                </button>
-                <button class="btn btn-edit" onclick="editTable(${table.id})">
-                    <i class="fas fa-edit"></i> Editar
-                </button>
+                <div class="button-group" style="margin-bottom: 8px; justify-content: space-between;">
+                    <button class="btn btn-primary" style="width: 48%;" onclick="showManageOrderModal(${table.id})">
+                        <i class="fas fa-utensils"></i> Gerenciar
+                    </button>
+                    <button class="btn btn-close" style="width: 48%;" onclick="showCloseTableModal(${table.id})">
+                        <i class="fas fa-stop"></i> Fechar
+                    </button>
+                </div>
+                <div class="button-group" style="justify-content: space-between;">
+                    <button class="btn btn-edit" style="width: 48%;" onclick="editTable(${table.id})">
+                        <i class="fas fa-edit"></i> Editar
+                    </button>
+                    <button class="btn btn-delete" style="width: 48%;" onclick="deleteTable(${table.id})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
             `;
         } else {
             actions = `
-                <button class="btn btn-edit" onclick="editTable(${table.id})">
-                    <i class="fas fa-edit"></i> Editar
-                </button>
+                <div class="button-group">
+                    <button class="btn btn-edit" onclick="editTable(${table.id})">
+                        <i class="fas fa-edit"></i> Editar
+                    </button>
+                    <button class="btn btn-delete" onclick="deleteTable(${table.id})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
             `;
         }
         
@@ -1341,9 +1358,6 @@ function renderTablesGrid() {
                 ${orderInfo}
                 <div class="table-actions">
                     ${actions}
-                    <button class="btn btn-delete" onclick="deleteTable(${table.id})">
-                        <i class="fas fa-trash"></i>
-                    </button>
                 </div>
             </div>
         `;
