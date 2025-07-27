@@ -2020,6 +2020,7 @@ form {
 .btn-delete {
     background: #64748b;
     color: white;
+    flex: 0 0 auto;
 }
 
 .btn-delete:hover {
