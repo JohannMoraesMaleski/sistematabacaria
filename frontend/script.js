@@ -1523,8 +1523,17 @@ function openTableModal() {
 // Edit table
 function editTable(id) {
     const table = currentTables.find(t => t.id === id);
-    if (!table) return;
+    if (!table) {
+        showAlert('Mesa não encontrada', 'error');
+        return;
+    }
     
+    // Check if table has open orders
+    if (table.current_order_id) {
+        showAlert('Não é possível editar uma mesa com pedidos em aberto', 'error');
+        return;
+    }
+
     document.getElementById('tableModalTitle').textContent = 'Editar Mesa';
     document.getElementById('tableId').value = table.id;
     document.getElementById('tableName').value = table.name || '';
@@ -1546,6 +1555,22 @@ async function saveTable(event) {
     
     if (!name || !number || !capacity) {
         showAlert('Preencha todos os campos obrigatórios', 'error');
+        return;
+    }
+
+    // Check if table number already exists (excluding current table if editing)
+    const existingTable = currentTables.find(t => 
+        t.number === parseInt(number) && t.id !== parseInt(id)
+    );
+    
+    if (existingTable) {
+        showAlert('Já existe uma mesa com este número', 'error');
+        return;
+    }
+
+    // Validate capacity is a positive number
+    if (parseInt(capacity) <= 0) {
+        showAlert('A capacidade deve ser um número positivo', 'error');
         return;
     }
     

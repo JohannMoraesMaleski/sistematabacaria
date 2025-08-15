@@ -1208,7 +1208,7 @@ body {
     color: white;
     border: none;
     /* padding removido para padronização via .table-actions/.button-group */
-    border-radius: 10px;
+    border-radius: 5px;
     cursor: pointer;
     font-family: Arial, sans-serif;
     font-size: 0.9rem;
@@ -1315,7 +1315,7 @@ body {
     color: white;
     border: none;
     /* padding removido para padronização via .table-actions/.button-group */
-    border-radius: 10px;
+    border-radius: 5px;
     cursor: pointer;
     font-family: Arial, sans-serif;
     font-size: 0.9rem;
