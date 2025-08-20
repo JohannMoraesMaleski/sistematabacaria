@@ -1,3 +1,357 @@
+.button-group {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.btn-secondary {
+    background: linear-gradient(135deg, #4b5563 0%, #6b7280 100%);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 0.8rem 1.5rem;
+    box-shadow: 0 4px 15px rgba(75,85,99,0.18), 0 2px 8px rgba(0,0,0,0.08);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(.25,.46,.45,.94);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-secondary:hover {
+    background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+    transform: translateY(-2px) scale(1.04);
+    box-shadow: 0 8px 25px rgba(75,85,99,0.22), 0 4px 16px rgba(0,0,0,0.12);
+}
+
+.btn-secondary:active {
+    transform: scale(0.98);
+}
+
+.btn-secondary:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(75,85,99,0.25);
+}
+
+.products-list h3, .categories-list h3 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: #374151;
+    font-size: 1.25rem;
+}
+
+.select-with-button {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    width: 100%;
+}
+
+.select-with-button select {
+    flex: 1;
+    min-width: 0; /* Permite que o select encolha se necessário */
+}
+
+.button-group-inline {
+    display: flex;
+    gap: 0.25rem;
+    align-items: center;
+    flex-shrink: 0; /* Impede que o botão encolha */
+}
+
+/* Estilos aprimorados para o modal */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.modal.show {
+    display: flex;
+    opacity: 1;
+}
+
+/* Configurações mínimas compartilhadas por todos os modais */
+.modal-content {
+    position: relative;
+    margin: auto;
+    transform: scale(0.95);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    will-change: transform, opacity;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ===== Modal de Produtos (Editar Produto) ===== */
+#productModal.modal {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+#productModal.modal .modal-content {
+    background: #fff;
+    border-radius: 20px;
+    width: 90%;
+    max-width: 600px;
+    height: 90vh;
+    overflow: hidden;
+    margin: 5vh auto; /* Posicionamento vertical específico */
+}
+
+#productModal.modal .modal-content form {
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    padding: 1.5rem;
+    max-height: calc(90vh - 120px);
+    overflow-y: auto;
+}
+
+#productModal.modal .form-fields-container {
+    padding: 1.5rem;
+}
+
+/* ===== Modal de Categorias (Independente do contexto) ===== */
+#categoryModal.modal {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+#categoryModal.modal .modal-content {
+    background: #fff;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 300px;
+    height: 45vh;
+    overflow: hidden;
+    margin: 15vh auto; /* Posicionamento vertical específico */
+}
+
+#categoryModal.modal .modal-content form {
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    padding: 1rem;
+    max-height: calc(45vh - 80px);
+    overflow-y: auto;
+}
+
+#categoryModal.modal .form-fields-container {
+    padding: 1rem;
+}
+
+#categoryModal.modal .modal-header {
+    padding: 1rem;
+}
+
+/* ===== Cabeçalho dos Modais ===== */
+.modal-header {
+    padding: 1.5rem 1.5rem 1rem 1.5rem;
+    border-bottom: 1px solid #e5e7eb;
+    background: #fff;
+}
+
+.form-fields-container {
+    padding: 1.5rem;
+    flex: 1;
+}
+
+.modal-content .form-actions {
+    padding: 1rem 1.5rem;
+    /*background: #fff;*/
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    position: sticky;
+    bottom: 0;
+    
+}
+
+.modal.show .modal-content {
+    transform: scale(1);
+    opacity: 1;
+}
+
+/* Suavizar transição de altura do select */
+.scrollable-select {
+    transition: height 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    border-radius: 6px;
+    border: 1px solid #d1d5db;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+    position: relative;
+}
+
+.form-group:last-child {
+    margin-bottom: 0;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+    user-select: none;
+    pointer-events: none;
+    cursor: default;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    background-color: #fff;
+    color: #1f2937;
+    font-size: 0.95rem;
+    transition: border-color 0.2s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.form-group input:hover,
+.form-group select:hover,
+.form-group textarea:hover {
+    border-color: #9ca3af;
+}
+
+/* Otimizar performance de renderização */
+.modal-content, .scrollable-select {
+    backface-visibility: hidden;
+    transform-style: preserve-3d;
+    perspective: 1000px;
+}
+
+.select-with-button select {
+    flex: 1;
+}
+
+.scrollable-select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 0.7rem center;
+    background-size: 1em;
+    padding-right: 2.5rem;
+}
+
+/* Estilos para o select quando aberto */
+.scrollable-select[size] {
+    height: auto !important;
+    max-height: 160px !important; /* Altura para 5 itens */
+    overflow-y: auto !important;
+}
+
+/* Personalização da barra de rolagem */
+.scrollable-select::-webkit-scrollbar {
+    width: 6px;
+}
+
+.scrollable-select::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.scrollable-select::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+}
+
+.scrollable-select::-webkit-scrollbar-thumb:hover {
+    background: #666;
+}
+
+.scrollable-select::-webkit-scrollbar {
+    width: 8px;
+}
+
+.scrollable-select::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.scrollable-select::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+.scrollable-select::-webkit-scrollbar-thumb:hover {
+    background: #666;
+}
+
+.scrollable-select option {
+    padding: 8px;
+    cursor: pointer;
+}
+
+.scrollable-select option:hover {
+    background-color: #f3f4f6;
+}
+
+.btn-icon {
+    background: #4b5563;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-icon:hover {
+    background: #6b7280;
+    transform: translateY(-1px);
+}
+
+.btn-icon:active {
+    transform: translateY(0);
+}
+
+.button-group-inline {
+    display: flex;
+    gap: 0.25rem;
+    align-items: center;
+}
+
+.btn-icon-danger {
+    background: #ef4444;
+}
+
+.btn-icon-danger:hover {
+    background: #dc2626;
+}
+
+@media (max-width: 1024px) {
+    .products-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 /* Botão Adicionar ao Carrinho laranja com borda arredondada especial */
 .btn-warning {
     background: linear-gradient(135deg, #f59e42 0%, #fbbf24 100%);
@@ -1428,15 +1782,14 @@ body {
 
 .modal-content {
     background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-    margin: 3% auto;
-    padding: 0;
+    padding: 1px;
     border-radius: 20px;
     width: 90%;
     max-width: 550px;
     box-shadow: 
         0 25px 50px rgba(0,0,0,0.25),
         0 10px 30px rgba(0,0,0,0.15);
-    border: 1px solid rgba(255,255,255,0.8);
+    border: 2px solid rgba(255,255,255,0.8);
     animation: modalSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -1510,7 +1863,7 @@ body {
 /* Forms */
 form {
     padding: 2.5rem;
-    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+   /* background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);*/
 }
 
 .form-group {
@@ -1571,7 +1924,6 @@ form {
     justify-content: center;
     margin-top: 2rem;
     padding-top: 2rem;
-    border-top: 2px solid #e9ecef;
 }
 
 /* Commands Styles */

@@ -37,10 +37,6 @@
                     <i class="fas fa-box"></i>
                     <span class="nav-text">Produtos</span>
                 </button>
-                <button class="nav-btn" data-tab="categories" data-tooltip="Categorias">
-                    <i class="fas fa-tags"></i>
-                    <span class="nav-text">Categorias</span>
-                </button>
                 <button class="nav-btn" data-tab="suppliers" data-tooltip="Fornecedores">
                     <i class="fas fa-truck"></i>
                     <span class="nav-text">Fornecedores</span>
@@ -170,31 +166,6 @@
                 </div>
             </div>
 
-            <!-- Categories Tab -->
-            <div class="tab-content" id="categories">
-                <div class="tab-header">
-                    <h2>Categorias</h2>
-                    <button class="btn-primary" onclick="showCategoryModal()">
-                        <i class="fas fa-plus"></i> Nova Categoria
-                    </button>
-                </div>
-                
-                <div class="table-container">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Nome</th>
-                                <th>Descrição</th>
-                                <th>Data de Criação</th>
-                                <th>Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody id="categories-table-body">
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
             <!-- Suppliers Tab -->
             <div class="tab-content" id="suppliers">
                 <div class="tab-header">
@@ -318,37 +289,49 @@
                 <button class="close-btn" onclick="closeModal('productModal')">&times;</button>
             </div>
             <form id="productForm">
-                <input type="hidden" id="productId">
-                <div class="form-group">
-                    <label for="productName">Nome *</label>
-                    <input type="text" id="productName" required>
-                </div>
-                <div class="form-group">
-                    <label for="productDescription">Descrição</label>
-                    <textarea id="productDescription" rows="3"></textarea>
-                </div>
-                <div class="form-row">
+                <div class="form-fields-container">
+                    <input type="hidden" id="productId">
                     <div class="form-group">
-                        <label for="productPrice">Preço *</label>
-                        <input type="number" id="productPrice" step="0.01" required>
+                        <label for="productName">Nome *</label>
+                        <input type="text" id="productName" required>
                     </div>
                     <div class="form-group">
-                        <label for="productStock">Estoque *</label>
-                        <input type="number" id="productStock" required>
+                        <label for="productDescription">Descrição</label>
+                        <textarea id="productDescription" rows="3"></textarea>
                     </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="productCategory">Categoria</label>
-                        <select id="productCategory">
-                            <option value="">Selecione...</option>
-                        </select>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="productPrice">Preço *</label>
+                            <input type="number" id="productPrice" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="productStock">Estoque *</label>
+                            <input type="number" id="productStock" required>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="productSupplier">Fornecedor</label>
-                        <select id="productSupplier">
-                            <option value="">Selecione...</option>
-                        </select>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="productCategory">Categoria</label>
+                            <div class="select-with-button">
+                                <select id="productCategory" class="scrollable-select" onclick="this.size=5;" onblur="this.size=0;" onchange="toggleDeleteCategoryButton()">
+                                    <option value="">Selecione...</option>
+                                </select>
+                                <div class="button-group-inline">
+                                    <button type="button" class="btn-icon" onclick="showQuickCategoryModal()" title="Adicionar Categoria">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                    <button type="button" class="btn-icon btn-icon-danger" id="deleteCategoryBtn" onclick="handleDeleteCategory()" style="display: none;" title="Excluir Categoria">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="productSupplier">Fornecedor</label>
+                            <select id="productSupplier">
+                                <option value="">Selecione...</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
                 <div class="form-actions">
@@ -821,6 +804,30 @@
                     </button>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Quick Category Modal -->
+    <div class="modal" id="quickCategoryModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Nova Categoria</h3>
+                <button class="close-btn" onclick="closeModal('quickCategoryModal')">&times;</button>
+            </div>
+            <form id="quickCategoryForm">
+                <div class="form-group">
+                    <label for="quickCategoryName">Nome *</label>
+                    <input type="text" id="quickCategoryName" required>
+                </div>
+                <div class="form-group">
+                    <label for="quickCategoryDescription">Descrição</label>
+                    <textarea id="quickCategoryDescription" rows="3"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" onclick="closeModal('quickCategoryModal')">Cancelar</button>
+                    <button type="submit" class="btn-primary" onclick="handleQuickCategorySubmit(event)">Salvar</button>
+                </div>
+            </form>
         </div>
     </div>
 

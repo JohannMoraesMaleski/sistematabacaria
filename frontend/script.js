@@ -458,12 +458,27 @@ async function loadCategoriesSelect() {
     const select = document.getElementById('productCategory');
     select.innerHTML = '<option value="">Selecione...</option>';
     
-    categories.forEach(category => {
-        const option = document.createElement('option');
-        option.value = category.id;
-        option.textContent = category.name;
-        select.appendChild(option);
-    });
+    try {
+        // Buscar categorias atualizadas do servidor
+        const updatedCategories = await apiCall('/categories');
+        
+        // Atualizar a variável global
+        categories = updatedCategories;
+        
+        // Preencher o select
+        categories.forEach(category => {
+            const option = document.createElement('option');
+            option.value = category.id;
+            option.textContent = category.name;
+            select.appendChild(option);
+        });
+        
+        // Atualizar visibilidade do botão de excluir
+        toggleDeleteCategoryButton();
+    } catch (error) {
+        console.error('Erro ao carregar categorias:', error);
+        showAlert('Erro ao carregar categorias', 'error');
+    }
 }
 
 async function loadSuppliersSelect() {
@@ -2528,30 +2543,33 @@ function initializeReports() {
 function closeModal(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) {
+        // Iniciar transição de saída
         modal.classList.remove('show');
         document.body.style.overflow = '';
-        // Hide modal after animation
+        
+        // Esperar a transição terminar antes de esconder
         setTimeout(() => {
             modal.style.display = 'none';
-        }, 200);
+        }, 300); // Tempo igual à duração da transição CSS
     }
 }
 
 // Show modal with smooth animation
 function showModal(modalId) {
-    console.log('🎭 showModal chamada para:', modalId);
     const modal = document.getElementById(modalId);
     if (modal) {
-        console.log('✅ Modal encontrado, exibindo...');
-        modal.style.display = 'block';
+        // Garantir que o modal esteja visível antes da animação
+        modal.style.display = 'flex';
         document.body.style.overflow = 'hidden';
-        // Trigger animation after display is set
+        
+        // Usar requestAnimationFrame para garantir que o display:flex seja aplicado
         requestAnimationFrame(() => {
-            modal.classList.add('show');
-            console.log('✅ Classe "show" adicionada ao modal');
+            requestAnimationFrame(() => {
+                modal.classList.add('show');
+            });
         });
     } else {
-        console.error('❌ Modal não encontrado:', modalId);
+        console.error('Modal não encontrado:', modalId);
     }
 }
 
@@ -3178,3 +3196,124 @@ async function updateItemCommand(itemId, currentCommand) {
         showAlert('Erro ao alterar comanda: ' + error.message, 'error');
     }
 }
+
+// Função para mostrar o modal rápido de categoria
+function showQuickCategoryModal() {
+    const modal = document.getElementById('quickCategoryModal');
+    const form = document.getElementById('quickCategoryForm');
+    form.reset();
+    showModal('quickCategoryModal');
+}
+
+// Função para salvar categoria rapidamente
+async function handleQuickCategorySubmit(event) {
+    if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
+    
+    const formData = {
+        name: document.getElementById('quickCategoryName').value,
+        description: document.getElementById('quickCategoryDescription').value
+    };
+    
+    if (!formData.name) {
+        showAlert('Nome da categoria é obrigatório', 'error');
+        return;
+    }
+    
+    try {
+        console.log('Enviando nova categoria:', formData);
+        const response = await apiCall('/categories', {
+            method: 'POST',
+            body: JSON.stringify(formData)
+        });
+        
+        console.log('Resposta do servidor:', response);
+        
+        if (response) {
+            showAlert('Categoria criada com sucesso', 'success');
+            
+            // Atualizar lista de categorias
+            const updatedCategories = await apiCall('/categories');
+            categories = updatedCategories;
+            
+            // Atualizar o select de categorias
+            const select = document.getElementById('productCategory');
+            if (select) {
+                select.innerHTML = '<option value="">Selecione...</option>';
+                categories.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category.id;
+                    option.textContent = category.name;
+                    select.appendChild(option);
+                });
+                
+                // Selecionar a nova categoria
+                if (response.id) {
+                    select.value = response.id;
+                }
+            }
+            
+            closeModal('quickCategoryModal');
+        }
+    } catch (error) {
+        console.error('Erro ao criar categoria:', error);
+        showAlert('Erro ao criar categoria: ' + (error.message || 'Erro desconhecido'), 'error');
+    }
+}
+
+// Função para mostrar/esconder o botão de excluir categoria
+function toggleDeleteCategoryButton() {
+    const categorySelect = document.getElementById('productCategory');
+    const deleteButton = document.getElementById('deleteCategoryBtn');
+    
+    if (categorySelect && deleteButton) {
+        deleteButton.style.display = categorySelect.value ? 'flex' : 'none';
+    }
+}
+
+// Função para excluir categoria
+async function handleDeleteCategory() {
+    const categorySelect = document.getElementById('productCategory');
+    const categoryId = categorySelect.value;
+    
+    if (!categoryId) return;
+    
+    const categoryName = categorySelect.options[categorySelect.selectedIndex].text;
+    
+    if (confirm(`Tem certeza que deseja excluir a categoria "${categoryName}"?`)) {
+        try {
+            // Verificar se existem produtos usando esta categoria
+            const products = await apiCall('/products');
+            const productsWithCategory = products.filter(p => p.category_id === parseInt(categoryId));
+            
+            if (productsWithCategory.length > 0) {
+                alert(`Não é possível excluir esta categoria pois existem ${productsWithCategory.length} produtos vinculados a ela.`);
+                return;
+            }
+            
+            await apiCall(`/categories/${categoryId}`, {
+                method: 'DELETE'
+            });
+            
+            showAlert('Categoria excluída com sucesso', 'success');
+            
+            // Atualizar selects e listas
+            await loadCategories();
+            await loadCategoriesSelect();
+            
+        } catch (error) {
+            console.error('Erro ao excluir categoria:', error);
+            showAlert('Erro ao excluir categoria: ' + (error.message || 'Erro desconhecido'), 'error');
+        }
+    }
+}
+
+// Adicionar event listener para o formulário de categoria rápida
+document.addEventListener('DOMContentLoaded', function() {
+    const quickCategoryForm = document.getElementById('quickCategoryForm');
+    if (quickCategoryForm) {
+        quickCategoryForm.addEventListener('submit', handleQuickCategorySubmit);
+    }
+});
