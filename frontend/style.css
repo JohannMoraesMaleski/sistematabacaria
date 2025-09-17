@@ -35,6 +35,21 @@
     box-shadow: 0 0 0 3px rgba(75,85,99,0.25);
 }
 
+/* Padronização dos botões em modais */
+.modal .form-actions .btn-primary,
+.modal .form-actions .btn-secondary {
+    width: 110px !important;
+    min-width: 110px !important;
+    max-width: 110px !important;
+    height: 42px !important;
+    padding: 8px 0 !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    font-size: 0.95em !important;
+    box-sizing: border-box !important;
+}
+
 .products-list h3, .categories-list h3 {
     margin-top: 0;
     margin-bottom: 1rem;
@@ -1405,7 +1420,7 @@ body {
     overflow: hidden;
     transform: translateZ(0);
     will-change: transform, box-shadow;
-    border: 2px solid transparent;
+    /*border: 2px solid transparent;*/
     background-clip: padding-box;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
@@ -1513,7 +1528,7 @@ body {
     justify-content: center;
     line-height: 1.2;
     will-change: transform, box-shadow;
-    border: 2px solid transparent;
+    /*border: 2px solid transparent;*/
     -webkit-tap-highlight-color: transparent;
 }
 
