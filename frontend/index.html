@@ -49,6 +49,10 @@
                     <i class="fas fa-chair"></i>
                     <span class="nav-text">Mesas</span>
                 </button>
+                <button class="nav-btn" data-tab="subscribers" data-tooltip="Mensalistas">
+                    <i class="fas fa-users"></i>
+                    <span class="nav-text">Mensalistas</span>
+                </button>
                 <button class="nav-btn" data-tab="reports" data-tooltip="Relatórios">
                     <i class="fas fa-chart-bar"></i>
                     <span class="nav-text">Relatórios</span>
@@ -187,6 +191,32 @@
                             </tr>
                         </thead>
                         <tbody id="suppliers-table-body">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Subscribers Tab -->
+            <div class="tab-content" id="subscribers">
+                <div class="tab-header">
+                    <h2>Mensalistas</h2>
+                    <button class="btn-primary" onclick="showSubscriberModal()">
+                        <i class="fas fa-plus"></i> Novo Mensalista
+                    </button>
+                </div>
+                
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Telefone</th>
+                                <th>Data de Pagamento</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="subscribers-table-body">
                         </tbody>
                     </table>
                 </div>
@@ -728,6 +758,37 @@
         </div>
     </div>
 
+    <!-- Subscriber Modal -->
+    <div class="modal" id="subscriberModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="subscriberModalTitle">Novo Mensalista</h3>
+                <button class="close-btn" onclick="closeModal('subscriberModal')">&times;</button>
+            </div>
+            <form id="subscriberForm" onsubmit="handleSubscriberSubmit(event)">
+                <input type="hidden" id="subscriberId">
+                <div class="form-fields-container">
+                    <div class="form-group">
+                        <label for="subscriberName">Nome *</label>
+                        <input type="text" id="subscriberName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="subscriberPhone">Telefone *</label>
+                        <input type="tel" id="subscriberPhone" required pattern="[0-9]{10,11}">
+                    </div>
+                    <div class="form-group">
+                        <label for="subscriberPaymentDay">Dia do Pagamento *</label>
+                        <input type="number" id="subscriberPaymentDay" min="1" max="31" required>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" onclick="closeModal('subscriberModal')">Cancelar</button>
+                    <button type="submit" class="btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Cart Modal -->
     <div class="modal" id="cartModal">
         <div class="modal-content cart-modal">
@@ -832,5 +893,6 @@
     </div>
 
     <script src="script.js"></script>
+    <script src="js/subscribers.js"></script>
 </body>
 </html>

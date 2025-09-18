@@ -40,6 +40,17 @@ const initDB = (db) => {
             )
         `);
 
+        // Tabela de mensalistas
+        db.run(`
+            CREATE TABLE IF NOT EXISTS subscribers (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                phone TEXT NOT NULL,
+                payment_day INTEGER NOT NULL,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
         // Tabela de vendas
         db.run(`
             CREATE TABLE IF NOT EXISTS sales (

@@ -29,6 +29,7 @@ const waiterRoutes = require('./backend/routes/waiters');
 const orderItemRoutes = require('./backend/routes/order-items');
 const reportRoutes = require('./backend/routes/reports');
 const paymentRoutes = require('./backend/routes/payments');
+const subscriberRoutes = require('./backend/routes/subscribers');
 
 app.use('/api/products', productRoutes(db));
 app.use('/api/categories', categoryRoutes(db));
@@ -40,6 +41,7 @@ app.use('/api/waiters', waiterRoutes(db));
 app.use('/api/order-items', orderItemRoutes(db));
 app.use('/api/reports', reportRoutes(db));
 app.use('/api/payments', paymentRoutes(db));
+app.use('/api/subscribers', subscriberRoutes(db));
 
 // Serve frontend
 app.get('/', (req, res) => {
