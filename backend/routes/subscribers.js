@@ -34,44 +34,44 @@ router.get('/:id', (req, res) => {
 
 // Criar novo mensalista
 router.post('/', (req, res) => {
-    const { name, phone, payment_day } = req.body;
+    const { name, phone, payment_date } = req.body;
     
-    if (!name || !phone || !payment_day) {
+    if (!name || !phone || !payment_date) {
         res.status(400).json({ error: 'Todos os campos são obrigatórios' });
         return;
     }
 
     const sql = `
-        INSERT INTO subscribers (name, phone, payment_day)
+        INSERT INTO subscribers (name, phone, payment_date)
         VALUES (?, ?, ?)
     `;
     
-    db.run(sql, [name, phone, payment_day], function(err) {
+    db.run(sql, [name, phone, payment_date], function(err) {
         if (err) {
             console.error(err);
             res.status(500).json({ error: 'Erro ao criar mensalista' });
             return;
         }
-        res.status(201).json({ id: this.lastID, name, phone, payment_day });
+        res.status(201).json({ id: this.lastID, name, phone, payment_date });
     });
 });
 
 // Atualizar mensalista
 router.put('/:id', (req, res) => {
-    const { name, phone, payment_day } = req.body;
+    const { name, phone, payment_date } = req.body;
     
-    if (!name || !phone || !payment_day) {
+    if (!name || !phone || !payment_date) {
         res.status(400).json({ error: 'Todos os campos são obrigatórios' });
         return;
     }
 
     const sql = `
         UPDATE subscribers 
-        SET name = ?, phone = ?, payment_day = ?
+        SET name = ?, phone = ?, payment_date = ?
         WHERE id = ?
     `;
     
-    db.run(sql, [name, phone, payment_day, req.params.id], function(err) {
+    db.run(sql, [name, phone, payment_date, req.params.id], function(err) {
         if (err) {
             console.error(err);
             res.status(500).json({ error: 'Erro ao atualizar mensalista' });
@@ -81,7 +81,7 @@ router.put('/:id', (req, res) => {
             res.status(404).json({ error: 'Mensalista não encontrado' });
             return;
         }
-        res.json({ id: req.params.id, name, phone, payment_day });
+        res.json({ id: req.params.id, name, phone, payment_date });
     });
 });
 

@@ -17,11 +17,35 @@ const tabContents = document.querySelectorAll('.tab-content');
 const sidebar = document.getElementById('sidebar');
 const sidebarToggle = document.getElementById('sidebarToggle');
 
+// Função para atualizar data e hora
+function updateDateTime() {
+    const now = new Date();
+    const options = { 
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+    };
+    const dateStr = now.toLocaleDateString('pt-BR', options);
+    const timeStr = now.toLocaleTimeString('pt-BR', { 
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+    
+    const datetimeElement = document.getElementById('datetime');
+    if (datetimeElement) {
+        datetimeElement.textContent = `${dateStr}    ${timeStr}`;
+    }
+}
+
 // Initialize app
 document.addEventListener('DOMContentLoaded', function() {
     initializeApp();
     setupEventListeners();
     setupSidebar();
+    
+    // Atualizar data e hora
+    updateDateTime();
+    setInterval(updateDateTime, 1000);
     
     // Forçar atribuições globais imediatamente
     setTimeout(forceGlobalAssignments, 100);

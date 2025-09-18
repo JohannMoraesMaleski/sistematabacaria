@@ -58,6 +58,10 @@
                     <span class="nav-text">Relatórios</span>
                 </button>
             </nav>
+            <!-- Footer DateTime -->
+            <div class="sidebar-footer">
+                <div id="datetime" class="datetime"></div>
+            </div>
         </aside>
 
         <!-- Sidebar Overlay for Mobile -->
@@ -211,7 +215,7 @@
                             <tr>
                                 <th>Nome</th>
                                 <th>Telefone</th>
-                                <th>Data de Pagamento</th>
+                                <th>Próximo Pagamento</th>
                                 <th>Status</th>
                                 <th>Ações</th>
                             </tr>
@@ -774,11 +778,11 @@
                     </div>
                     <div class="form-group">
                         <label for="subscriberPhone">Telefone *</label>
-                        <input type="tel" id="subscriberPhone" required pattern="[0-9]{10,11}">
+                        <input type="tel" id="subscriberPhone" required pattern="[0-9]{10,11}" placeholder="Exemplo: 41999999999 (Somente números)">
                     </div>
                     <div class="form-group">
-                        <label for="subscriberPaymentDay">Dia do Pagamento *</label>
-                        <input type="number" id="subscriberPaymentDay" min="1" max="31" required>
+                        <label for="subscriberPaymentDate">Data de Pagamento *</label>
+                        <input type="date" id="subscriberPaymentDate" required>
                     </div>
                 </div>
                 <div class="form-actions">

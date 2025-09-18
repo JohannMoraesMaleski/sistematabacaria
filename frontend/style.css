@@ -50,6 +50,37 @@
     box-sizing: border-box !important;
 }
 
+/* Sidebar Footer */
+.sidebar-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 280px;
+    padding: 1rem;
+    background: linear-gradient(180deg, #1e3c72 0%, #2a5298 50%, #1e3c72 100%);
+    color: #fff;
+    text-align: center;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.sidebar.collapsed .sidebar-footer {
+    width: 80px;
+    padding: 0.5rem;
+    font-size: 0.8rem;
+}
+
+.datetime {
+    font-family: 'Poppins', sans-serif;
+    opacity: 0.9;
+    white-space: nowrap;
+}
+
+.sidebar.collapsed .datetime {
+    display: none;
+}
+}
+
 .products-list h3, .categories-list h3 {
     margin-top: 0;
     margin-bottom: 1rem;

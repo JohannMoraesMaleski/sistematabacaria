@@ -19,13 +19,14 @@ function renderSubscribersTable() {
     
     subscribers.forEach(subscriber => {
         const row = document.createElement('tr');
-        const status = isPaymentLate(subscriber.payment_day) ? 'Atrasado' : 'Em dia';
-        const statusClass = isPaymentLate(subscriber.payment_day) ? 'status-late' : 'status-ok';
+        const paymentDate = new Date(subscriber.payment_date);
+        const status = isPaymentLate(paymentDate) ? 'Atrasado' : 'Em dia';
+        const statusClass = isPaymentLate(paymentDate) ? 'status-late' : 'status-ok';
         
         row.innerHTML = `
             <td>${subscriber.name}</td>
             <td>${formatPhone(subscriber.phone)}</td>
-            <td>Dia ${subscriber.payment_day}</td>
+            <td>${formatDate(subscriber.payment_date)}</td>
             <td><span class="status-badge ${statusClass}">${status}</span></td>
             <td>
                 <div class="btn-container">
@@ -49,7 +50,7 @@ function showSubscriberModal(subscriber = null) {
     document.getElementById('subscriberId').value = subscriber ? subscriber.id : '';
     document.getElementById('subscriberName').value = subscriber ? subscriber.name : '';
     document.getElementById('subscriberPhone').value = subscriber ? subscriber.phone : '';
-    document.getElementById('subscriberPaymentDay').value = subscriber ? subscriber.payment_day : '';
+    document.getElementById('subscriberPaymentDate').value = subscriber ? subscriber.payment_date : '';
     
     showModal('subscriberModal');
 }
@@ -83,7 +84,7 @@ async function handleSubscriberSubmit(event) {
     const formData = {
         name: document.getElementById('subscriberName').value,
         phone: document.getElementById('subscriberPhone').value.replace(/\D/g, ''),
-        payment_day: parseInt(document.getElementById('subscriberPaymentDay').value)
+        payment_date: document.getElementById('subscriberPaymentDate').value
     };
     
     const id = document.getElementById('subscriberId').value;
@@ -112,6 +113,15 @@ async function handleSubscriberSubmit(event) {
 }
 
 // Funções auxiliares
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+    });
+}
+
 function formatPhone(phone) {
     const cleaned = phone.replace(/\D/g, '');
     if (cleaned.length === 11) {
@@ -120,10 +130,9 @@ function formatPhone(phone) {
     return phone;
 }
 
-function isPaymentLate(paymentDay) {
+function isPaymentLate(paymentDate) {
     const today = new Date();
-    const currentDay = today.getDate();
-    return currentDay > paymentDay;
+    return new Date(paymentDate) < today;
 }
 
 // Inicializar quando a aba de mensalistas for aberta

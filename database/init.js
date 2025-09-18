@@ -46,7 +46,7 @@ const initDB = (db) => {
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL,
                 phone TEXT NOT NULL,
-                payment_day INTEGER NOT NULL,
+                payment_date DATE NOT NULL,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP
             )
         `);
