@@ -16,6 +16,22 @@ const navButtons = document.querySelectorAll('.nav-btn');
 const tabContents = document.querySelectorAll('.tab-content');
 const sidebar = document.getElementById('sidebar');
 const sidebarToggle = document.getElementById('sidebarToggle');
+const themesNavBtn = document.getElementById('themesNavBtn');
+const themePanel = document.getElementById('themePanel');
+const themeOptions = document.querySelectorAll('.theme-option');
+
+function applyTheme(theme) {
+    document.body.setAttribute('data-theme', theme);
+    themeOptions.forEach((option) => {
+        option.classList.toggle('active', option.dataset.theme === theme);
+    });
+    localStorage.setItem('theme', theme);
+}
+
+function initializeTheme() {
+    const savedTheme = localStorage.getItem('theme') || 'default';
+    applyTheme(savedTheme);
+}
 
 // Função para atualizar data e hora
 function updateDateTime() {
@@ -39,6 +55,7 @@ function updateDateTime() {
 
 // Initialize app
 document.addEventListener('DOMContentLoaded', function() {
+    initializeTheme();
     initializeApp();
     setupEventListeners();
     setupSidebar();
@@ -208,6 +225,21 @@ function setupEventListeners() {
     const interestRate = document.getElementById('interestRate');
     if (interestRate) {
         interestRate.addEventListener('input', updateCartTotals);
+    }
+
+    themeOptions.forEach((option) => {
+        option.addEventListener('click', () => {
+            applyTheme(option.dataset.theme);
+        });
+    });
+
+    if (themesNavBtn && themePanel) {
+        themesNavBtn.addEventListener('click', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            themePanel.classList.toggle('open');
+            themesNavBtn.classList.toggle('active');
+        });
     }
 }
 
